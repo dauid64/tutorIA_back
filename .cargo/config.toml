@@ -1,0 +1,5 @@
+[env]
+
+RUST_LOG="tutorIA_back=debug"
+
+SERVICE_PORT="3000"
