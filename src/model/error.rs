@@ -1,12 +1,11 @@
-use crate::model;
+use super::store;
 use derive_more::From;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, From)]
 pub enum Error {
-    ConfigMissingEnv(&'static str),
-    Model(model::Error),
+    Store(store::Error),
 }
 
 // region:    --- Error Boilerplate

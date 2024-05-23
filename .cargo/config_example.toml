@@ -1,0 +1,7 @@
+[env]
+
+RUST_LOG="tutorIA_back=debug"
+
+SERVICE_PORT="3000"
+
+SERVICE_DB_URL="postgres://user:pwd@localhost/db"

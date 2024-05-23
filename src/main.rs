@@ -1,13 +1,15 @@
-use axum::{routing::get, Router};
+use axum::Router;
 use tracing::info;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 use crate::error::Result;
 use crate::config::config;
+use crate::model::ModelManager;
 use crate::web::routes;
 
 mod error;
 mod config;
 mod web;
+mod model;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -17,7 +19,9 @@ async fn main() -> Result<()> {
         .try_init()
         .expect("Erro to initialize tracing");
 
-    let routes_alunos = routes::alunos::routes();
+    let mm = ModelManager::new().await?;
+
+    let routes_alunos = routes::alunos::routes(mm);
 
     let routes_all = Router::new()
         .merge(routes_alunos);

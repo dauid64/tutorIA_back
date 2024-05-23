@@ -1,13 +1,16 @@
-use axum::{routing::post, Json, Router};
+use axum::{extract::State, routing::post, Json, Router};
 use serde_json::{json, Value};
-use crate::web::error::Result;
+use crate::{model::ModelManager, web::error::Result};
 
-pub fn routes() -> Router {
+pub fn routes(mm: ModelManager) -> Router {
     Router::new()
         .route("/api/alunos", post(alunos_handler))
+        .with_state(mm)
 }
 
-async fn alunos_handler() -> Result<Json<Value>> {
+async fn alunos_handler(
+    State(mm): State<ModelManager>
+) -> Result<Json<Value>> {
     let body = Json(json!({
         "result": {
             "success": true

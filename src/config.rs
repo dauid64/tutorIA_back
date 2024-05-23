@@ -13,7 +13,8 @@ pub fn config() -> &'static Config {
 }
 
 pub struct Config {
-    pub port: String
+    pub port: String,
+    pub db_url: String,
 }
 
 impl Config {
@@ -21,6 +22,7 @@ impl Config {
         Ok(
             Config {
                 port: get_env("SERVICE_PORT")?,
+                db_url: get_env("SERVICE_DB_URL")?,
             }
         )
     }

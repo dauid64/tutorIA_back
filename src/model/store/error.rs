@@ -1,12 +1,8 @@
-use crate::model;
-use derive_more::From;
-
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, From)]
+#[derive(Debug)]
 pub enum Error {
-    ConfigMissingEnv(&'static str),
-    Model(model::Error),
+    FailToCreatePool(String),
 }
 
 // region:    --- Error Boilerplate
