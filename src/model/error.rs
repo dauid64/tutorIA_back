@@ -1,11 +1,15 @@
 use super::store;
 use derive_more::From;
+use serde::Serialize;
+use serde_with::{serde_as, DisplayFromStr};
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, From)]
+#[serde_as]
+#[derive(Debug, From, Serialize)]
 pub enum Error {
     Store(store::Error),
+    Sqlx(#[serde_as(as = "DisplayFromStr")]sqlx::Error),
 }
 
 // region:    --- Error Boilerplate
@@ -15,6 +19,7 @@ impl core::fmt::Display for Error {
         write!(fmt, "{self:?}")
     }
 }
+
 
 impl std::error::Error for Error {}
 

@@ -10,6 +10,7 @@ mod error;
 mod config;
 mod web;
 mod model;
+pub mod _dev_utils;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -18,6 +19,9 @@ async fn main() -> Result<()> {
         .with(EnvFilter::from_default_env())
         .try_init()
         .expect("Erro to initialize tracing");
+
+    // -- FOR DEV ONLY
+    _dev_utils::init_dev().await;
 
     let mm = ModelManager::new().await?;
 

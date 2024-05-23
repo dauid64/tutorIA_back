@@ -10,9 +10,11 @@ services:
     depends_on:
       - db
   db:
-    image: postgres:latest
+    image: postgres:16
     env_file:
       - ./docker_env/.env
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     

@@ -4,6 +4,7 @@ use self::store::{new_db_pool, Db};
 
 mod error;
 mod store;
+mod base;
 
 #[derive(Clone)]
 pub struct ModelManager {
