@@ -23,5 +23,6 @@ sqlb = "0.4.0"
 
 # -- Others
 derive_more = { version = "0.99.17", features = ["from"]}
+uuid = { version = "1.8.0", features = ["serde"]}
 
 

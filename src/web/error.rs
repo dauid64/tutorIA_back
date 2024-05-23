@@ -1,14 +1,19 @@
+use std::sync::Arc;
+
 use axum::{http::StatusCode, response::{IntoResponse, Response}};
+use serde::Serialize;
 use tracing::debug;
+use derive_more::From;
+
+use crate::model;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Serialize, From)]
+#[serde(tag = "type", content = "data")]
 pub enum Error {
-    // TBC
+    Model(model::Error),
 }
-
-// region:    --- Error Boilerplate
 
 impl core::fmt::Display for Error {
     fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::result::Result<(), core::fmt::Error> {
@@ -20,16 +25,13 @@ impl IntoResponse for Error {
     fn into_response(self) -> Response {
         debug!(" {:<12} - model::Error {self:?}", "INTO_RES");
 
-        // Create a placeholder Axum reponse.
         let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
 
-        // Insert the Error into the reponse.
-        response.extensions_mut().insert(self);
+        // FIXME - Analisar se Arc é uma boa prática
+        response.extensions_mut().insert(Arc::new(self));
 
         response
     }
 }
 
 impl std::error::Error for Error {}
-
-// endregion: --- Error Boilerplate

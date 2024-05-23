@@ -1,4 +1,5 @@
 use sqlb::HasFields;
+use uuid::Uuid;
 use crate::model::Result;
 use super::ModelManager;
 
@@ -6,7 +7,7 @@ pub trait DbBmc {
     const TABLE: &'static str;
 }
 
-pub async fn create<MC, E>(mm: &ModelManager, data: E) -> Result<i64> 
+pub async fn create<MC, E>(mm: &ModelManager, data: E) -> Result<Uuid> 
 where
     MC: DbBmc,
     E: HasFields
@@ -18,7 +19,7 @@ where
         .table(MC::TABLE)
         .data(fields)
         .returning(&["id"])
-        .fetch_one::<_, (i64,)>(db)
+        .fetch_one::<_, (Uuid,)>(db)
         .await?;
 
     Ok(id)
