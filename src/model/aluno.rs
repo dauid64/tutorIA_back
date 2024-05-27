@@ -17,6 +17,7 @@ pub struct Aluno {
 #[derive(Deserialize, Fields)]
 pub struct AlunoForCreate {
     pub nome: String,
+    pub usuario_id: Uuid,
 }
 
 pub struct AlunoBmc;

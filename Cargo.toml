@@ -6,23 +6,34 @@ edition = "2021"
 [dependencies]
 # -- Async
 tokio = { version = "1.37.0", features = ["full"]}
+async-trait = "0.1.80"
 
 # -- Web
 axum = "0.7.5"
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"]}
+tower-cookies = "0.10.0"
 
 # -- Json
 serde = {version = "1.0.202", features = ["derive"]}
 serde_json = "1.0.117"
 serde_with = "3.8.1"
 
+# -- Crypt
+hmac = "0.12.1"
+jsonwebtoken = "9.3.0"
+sha2 = "0.10.8"
+base64-url = "3.0.0"
+
 # -- Data
 sqlx = { version = "0.7.4", features = ["runtime-tokio-rustls", "postgres", "uuid", "time"]}
 sqlb = "0.4.0"
 
+# -- Date
+chrono = "0.4.38"
+
 # -- Others
 derive_more = { version = "0.99.17", features = ["from"]}
 uuid = { version = "1.8.0", features = ["serde"]}
-
-
+rand = "0.8.5"
+anyhow = "1.0.86"

@@ -3,6 +3,8 @@ use std::{fs, path::PathBuf, time::Duration};
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use tracing::info;
 
+use crate::{ctx::Ctx, model::{usuario::{Usuario, UsuarioBmc}, ModelManager}};
+
 type Db = Pool<Postgres>;
 
 const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:welcome@localhost/postgres";

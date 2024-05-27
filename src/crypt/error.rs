@@ -1,16 +1,17 @@
-use crate::model;
 use derive_more::From;
-use uuid::Uuid;
+use serde::Serialize;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, From)]
+#[derive(Debug, From, Serialize)]
 pub enum Error {
     #[from(ignore)]
-    ConfigMissingEnv(&'static str),
+    ErrorToEncodeJWT(String),
     #[from(ignore)]
-    ConfigWrongFormat(&'static str),
-    Model(model::Error),
+    ErrorToDecodeJWT(String),
+    KeyFailHmac,
+    SecretKeyWrongFormat,
+    PwdNotMacthing
 }
 
 // region:    --- Error Boilerplate

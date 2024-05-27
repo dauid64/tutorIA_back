@@ -4,8 +4,11 @@ use axum::{http::StatusCode, response::{IntoResponse, Response}};
 use serde::Serialize;
 use tracing::debug;
 use derive_more::From;
+use uuid::Uuid;
 
-use crate::model;
+use crate::{model, crypt};
+
+use super::middlewares;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -13,6 +16,13 @@ pub type Result<T> = core::result::Result<T, Error>;
 #[serde(tag = "type", content = "data")]
 pub enum Error {
     Model(model::Error),
+    Utils(crypt::Error),
+    CtxExt(middlewares::auth::CtxExtError),
+    LoginFailUsernameNotFound,
+    #[from(ignore)]
+    LoginFailUserHasNoPwd{ user_id: Uuid },
+    #[from(ignore)]
+    LoginFailPwdNotMatching { user_id: Uuid },
 }
 
 impl core::fmt::Display for Error {

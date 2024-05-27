@@ -1,15 +1,19 @@
-use axum::Router;
+use axum::{middleware, Router};
+use tower_cookies::CookieManagerLayer;
 use tracing::info;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 use crate::error::Result;
 use crate::config::config;
 use crate::model::ModelManager;
+use crate::web::middlewares::auth::mw_ctx_resolve;
 use crate::web::routes;
 
 mod error;
 mod config;
 mod web;
 mod model;
+mod crypt;
+mod ctx;
 pub mod _dev_utils;
 
 #[tokio::main]
@@ -25,10 +29,14 @@ async fn main() -> Result<()> {
 
     let mm = ModelManager::new().await?;
 
-    let routes_alunos = routes::alunos::routes(mm);
+    let routes_alunos = routes::aluno::routes(mm.clone());
+    let routes_usuario = routes::usuario::routes(mm.clone());
 
     let routes_all = Router::new()
-        .merge(routes_alunos);
+        .merge(routes_alunos)
+        .merge(routes_usuario)
+        .layer(middleware::from_fn_with_state(mm.clone(), mw_ctx_resolve))
+        .layer(CookieManagerLayer::new());
 
 
     let port = &config().port;

@@ -17,4 +17,10 @@ services:
       - ./postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+  pgadmin:
+    image: dpage/pgadmin4
+    env_file:
+      - ./docker_env/.env
+    ports:
+      - "15432:80"
     

@@ -5,11 +5,11 @@ use crate::model::aluno::{AlunoBmc, AlunoForCreate};
 
 pub fn routes(mm: ModelManager) -> Router {
     Router::new()
-        .route("/api/alunos", post(alunos_handler))
+        .route("/api/aluno", post(api_create_aluno_handler))
         .with_state(mm)
 }
 
-async fn alunos_handler(
+async fn api_create_aluno_handler(
     State(mm): State<ModelManager>,
     Json(payload): Json<AlunoForCreate>
 ) -> Result<Json<Value>> {
@@ -17,6 +17,7 @@ async fn alunos_handler(
 
     let body = Json(json!({
         "result": {
+            "success": true,
             "id": id
         }}
     ));

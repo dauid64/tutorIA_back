@@ -6,6 +6,7 @@ mod error;
 mod store;
 mod base;
 pub mod aluno;
+pub mod usuario;
 
 #[derive(Clone)]
 pub struct ModelManager {

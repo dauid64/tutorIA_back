@@ -5,3 +5,8 @@ RUST_LOG="tutorIA_back=debug"
 SERVICE_PORT="3000"
 
 SERVICE_DB_URL="postgres://user:pwd@localhost/db"
+
+SECRET_JWT="CHANGE-ME"
+
+# For Base64-URL
+PWD_KEY="CHANGE-ME"

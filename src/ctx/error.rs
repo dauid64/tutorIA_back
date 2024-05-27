@@ -1,16 +1,8 @@
-use crate::model;
-use derive_more::From;
-use uuid::Uuid;
-
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, From)]
+#[derive(Debug)]
 pub enum Error {
-    #[from(ignore)]
-    ConfigMissingEnv(&'static str),
-    #[from(ignore)]
-    ConfigWrongFormat(&'static str),
-    Model(model::Error),
+    CtxCannotNewRootCtx,
 }
 
 // region:    --- Error Boilerplate
