@@ -13,11 +13,12 @@ async fn api_create_aluno_handler(
     State(mm): State<ModelManager>,
     Json(payload): Json<AlunoForCreate>
 ) -> Result<Json<Value>> {
+    AlunoBmc::validate(&payload).await?;
+
     let id = AlunoBmc::create(&mm, payload).await?;
 
     let body = Json(json!({
         "result": {
-            "success": true,
             "id": id
         }}
     ));

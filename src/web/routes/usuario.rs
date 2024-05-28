@@ -80,7 +80,6 @@ async fn api_create_usuario_handler(
 
     let body = Json(json!({
         "result": {
-            "success": true,
             "id": id
         }
     }));
