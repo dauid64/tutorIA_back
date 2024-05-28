@@ -3,7 +3,7 @@ use serde::Serialize;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, From, Serialize)]
+#[derive(Debug, From, Serialize, Clone)]
 pub enum Error {
     #[from(ignore)]
     ErrorToEncodeJWT(String),

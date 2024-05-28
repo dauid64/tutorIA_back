@@ -1,6 +1,5 @@
 use crate::model;
 use derive_more::From;
-use uuid::Uuid;
 
 pub type Result<T> = core::result::Result<T, Error>;
 

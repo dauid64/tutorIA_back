@@ -6,13 +6,13 @@ use tracing::debug;
 use derive_more::From;
 use uuid::Uuid;
 
-use crate::{model, crypt};
+use crate::{crypt, model, web};
 
 use super::middlewares;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, Serialize, From)]
+#[derive(Debug, Serialize, From, Clone)]
 #[serde(tag = "type", content = "data")]
 pub enum Error {
     Model(model::Error),
@@ -37,11 +37,47 @@ impl IntoResponse for Error {
 
         let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
 
-        // FIXME - Analisar se Arc é uma boa prática
-        response.extensions_mut().insert(Arc::new(self));
+        response.extensions_mut().insert(self);
 
         response
     }
 }
 
 impl std::error::Error for Error {}
+
+impl Error {
+    pub fn client_status_and_error(&self) -> (StatusCode, ClientError) {
+        use web::error::Error::*;
+
+        match self {
+            LoginFailUsernameNotFound
+            | LoginFailUserHasNoPwd { .. }
+            | LoginFailPwdNotMatching { .. } => {
+                (StatusCode::FORBIDDEN, ClientError::NO_AUTH)
+            },
+            CtxExt(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+            Model(model::Error::ValidateFail(err)) => {
+                (StatusCode::BAD_REQUEST, ClientError::INVALID_DATA(err))
+            }
+            Model(model::Error::EntityNotFound { entity, id }) => {
+                (StatusCode::BAD_REQUEST, ClientError::ENTITY_NOT_FOUND { entity, id: *id })
+            }
+            _ => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                ClientError::SERVICE_ERROR,
+            ),
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(tag = "message", content = "detail")]
+#[allow(non_camel_case_types)]
+pub enum ClientError {
+    LOGIN_FAIL,
+    NO_AUTH,
+    SERVICE_ERROR,
+    VALIDATE_ERROR,
+    ENTITY_NOT_FOUND { entity: &'static str, id: i64},
+    INVALID_DATA(&'static str)
+}

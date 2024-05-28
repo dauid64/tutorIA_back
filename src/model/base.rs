@@ -2,6 +2,7 @@ use sqlb::HasFields;
 use uuid::Uuid;
 use crate::model::Result;
 use super::ModelManager;
+use super::Error;
 
 pub trait DbBmc {
     const TABLE: &'static str;
@@ -20,7 +21,8 @@ where
         .data(fields)
         .returning(&["id"])
         .fetch_one::<_, (Uuid,)>(db)
-        .await?;
+        .await
+        .map_err(|err| Error::Sqlx(err.to_string()))?;
 
     Ok(id)
 }

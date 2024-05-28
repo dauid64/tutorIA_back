@@ -34,6 +34,7 @@ chrono = "0.4.38"
 
 # -- Others
 derive_more = { version = "0.99.17", features = ["from"]}
-uuid = { version = "1.8.0", features = ["serde"]}
+uuid = { version = "1.8.0", features = ["serde", "v4", "fast-rng"]}
 rand = "0.8.5"
 anyhow = "1.0.86"
+strum_macros = "0.26.2"

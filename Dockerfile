@@ -33,6 +33,8 @@ WORKDIR /usr/src/app
 # Copy the binary from the builder stage
 COPY --from=builder /usr/src/app/target/release/tutorIA_back /usr/src/app/tutorIA_back
 
+COPY sql /usr/app/sql
+
 # Set permissions to execute
 RUN chmod +x /usr/src/app/tutorIA_back
 

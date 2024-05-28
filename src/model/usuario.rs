@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::ctx::Ctx;
 
-use super::{base::{self, DbBmc}, ModelManager, Result};
+use super::{base::{self, DbBmc}, ModelManager, Result, Error};
 
 #[derive(Clone, Fields, FromRow, Debug, Serialize)]
 pub struct Usuario {
@@ -41,6 +41,27 @@ impl UserBy for UsuarioForCreate{}
 impl UserBy for UsuarioForAuth{}
 impl UserBy for UsuarioForLogin{}
 
+impl UsuarioForCreate {
+    fn validate(&self) -> Result<()> {
+        let username = self.username.trim();
+        let pwd = self.pwd.trim();
+
+        if username.is_empty() {
+            return Err(Error::ValidateFail("Nome de usuário em branco"))
+        }
+
+        if username.contains(char::is_whitespace) {
+            return Err(Error::ValidateFail("Nome de usuário não pode conter espaços"))
+        }
+
+        if pwd.is_empty() {
+            return Err(Error::ValidateFail("Senha em branco"))
+        }
+
+        Ok(())
+    }
+}
+
 pub struct UsuarioBmc;
 
 impl DbBmc for UsuarioBmc {
@@ -48,6 +69,10 @@ impl DbBmc for UsuarioBmc {
 }
 
 impl UsuarioBmc {
+    pub async fn validate(usuario_c: &UsuarioForCreate) -> Result<()> {
+        usuario_c.validate()
+    }
+
     pub async fn create(mm: &ModelManager, usuario_c: UsuarioForCreate) -> Result<Uuid> {
         base::create::<Self, _>(mm, usuario_c).await
     }
@@ -66,7 +91,8 @@ impl UsuarioBmc {
             .table(Self::TABLE)
             .and_where("username", "=", username)
             .fetch_optional::<_, E>(db)
-            .await?;
+            .await
+            .map_err(|err| Error::Sqlx(err.to_string()))?;
 
         Ok(user)
     }

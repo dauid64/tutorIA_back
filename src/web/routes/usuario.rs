@@ -66,6 +66,8 @@ async fn api_create_usuario_handler(
     Json(payload): Json<UsuarioForCreate>
 ) -> Result<Json<Value>> {
     debug!(" {:<12} - api_create_usuario_handler", "HANDLER");
+    
+    UsuarioBmc::validate(&payload).await?;
 
     let crypt_pwd = crypt::pwd::encrypt_pwd(&payload.pwd)?;
     
