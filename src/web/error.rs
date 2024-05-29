@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use axum::{http::StatusCode, response::{IntoResponse, Response}};
 use serde::Serialize;
 use tracing::debug;
@@ -74,10 +72,8 @@ impl Error {
 #[serde(tag = "message", content = "detail")]
 #[allow(non_camel_case_types)]
 pub enum ClientError {
-    LOGIN_FAIL,
     NO_AUTH,
     SERVICE_ERROR,
-    VALIDATE_ERROR,
     ENTITY_NOT_FOUND { entity: &'static str, id: i64},
     INVALID_DATA(&'static str)
 }

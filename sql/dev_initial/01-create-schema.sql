@@ -1,5 +1,5 @@
 CREATE TABLE "usuario" (
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     username varchar(128) NOT NULL UNIQUE,
     pwd varchar(256)

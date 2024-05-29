@@ -1,14 +1,13 @@
 use std::{env, sync::OnceLock};
 
-use crate::error::{Result, Error};
+use crate::error::{Error, Result};
 
 pub fn config() -> &'static Config {
     static INSTANCE: OnceLock<Config> = OnceLock::new();
 
     INSTANCE.get_or_init(|| {
-        Config::load_from_env().unwrap_or_else(|ex| {
-            panic!("FATAL - WHILE LOADING CONF - Cause: {ex:?}")
-        })
+        Config::load_from_env()
+            .unwrap_or_else(|ex| panic!("FATAL - WHILE LOADING CONF - Cause: {ex:?}"))
     })
 }
 
@@ -21,14 +20,12 @@ pub struct Config {
 
 impl Config {
     fn load_from_env() -> Result<Config> {
-        Ok(
-            Config {
-                port: get_env("SERVICE_PORT")?,
-                db_url: get_env("SERVICE_DB_URL")?,
-                secret_jwt: get_env("SECRET_JWT")?,
-                pwd_key: get_env_b64u_as_u8s("PWD_KEY")?,
-            }
-        )
+        Ok(Config {
+            port: get_env("SERVICE_PORT")?,
+            db_url: get_env("DATABASE_URL")?,
+            secret_jwt: get_env("SECRET_JWT")?,
+            pwd_key: get_env_b64u_as_u8s("PWD_KEY")?,
+        })
     }
 }
 

@@ -16,6 +16,7 @@ mod model;
 mod crypt;
 mod ctx;
 pub mod _dev_utils;
+pub mod utils;
 
 #[tokio::main]
 async fn main() -> Result<()> {

@@ -7,7 +7,6 @@ use tower_cookies::Cookies;
 use tracing::debug;
 
 use crate::crypt::{self, pwd};
-use crate::ctx::Ctx;
 use crate::model::usuario::{UsuarioBmc, UsuarioForCreate, UsuarioForLogin};
 use crate::model::ModelManager;
 use crate::web;
@@ -37,9 +36,8 @@ async fn api_login_handler(
         username,
         pwd: pwd_clear,
     }: LoginPayload = payload;
-    let root_ctx = Ctx::root_ctx();
 
-    let user: UsuarioForLogin = UsuarioBmc::first_by_username(&root_ctx, &mm, &username)
+    let user: UsuarioForLogin = UsuarioBmc::first_by_username(&mm, &username)
         .await?
         .ok_or(Error::LoginFailUsernameNotFound)?;
     let user_id = user.id;

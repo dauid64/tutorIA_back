@@ -3,8 +3,6 @@ use sqlb::{Fields, HasFields};
 use sqlx::{postgres::PgRow, prelude::FromRow};
 use uuid::Uuid;
 
-use crate::ctx::Ctx;
-
 use super::{base::{self, DbBmc}, ModelManager, Result, Error};
 
 #[derive(Clone, Fields, FromRow, Debug, Serialize)]
@@ -78,7 +76,6 @@ impl UsuarioBmc {
     }
 
     pub async fn first_by_username<E>(
-        ctx: &Ctx, 
         mm: &ModelManager,
         username: &str,
     ) -> Result<Option<E>> 

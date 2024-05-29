@@ -51,7 +51,7 @@ async fn _ctx_resolve(mm: State<ModelManager>, cookies: &Cookies) -> CtxExtResul
 
     let claim = decode_jwt(token).map_err(|_| CtxExtError::TokenWrongFormat)?.claims;
 
-    let user: UsuarioForAuth = UsuarioBmc::first_by_username(&Ctx::root_ctx(), &mm, &claim.username)
+    let user: UsuarioForAuth = UsuarioBmc::first_by_username( &mm, &claim.username)
         .await
         .map_err(|err| CtxExtError::ModelAccessError(err.to_string()))?
         .ok_or(CtxExtError::UserNotFound)?;
