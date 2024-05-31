@@ -2,4 +2,3 @@
 /.cargo/config.toml
 /postgres_data
 /docker_env/.env
-/.sqlx

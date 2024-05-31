@@ -10,8 +10,8 @@ type Db = Pool<Postgres>;
 const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:welcome@localhost/postgres";
 const PG_DEV_APP_URL: &str = "postgres://app_user:dev_only_pwd@localhost/app_db";
 
-const SQL_RECREATE_DB: &str = "sql/dev_initial/00-recreate-db.sql";
-const SQL_DIR: &str = "sql/dev_initial";
+const SQL_RECREATE_DB: &str = "migrations/dev_initial/00-recreate-db.sql";
+const SQL_DIR: &str = "migrations/dev_initial";
 
 pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
     info!("{:<12} - init_dev_db()", "FOR-DEV-ONLY");
