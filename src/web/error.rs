@@ -21,6 +21,7 @@ pub enum Error {
     LoginFailUserHasNoPwd{ user_id: Uuid },
     #[from(ignore)]
     LoginFailPwdNotMatching { user_id: Uuid },
+    Router(&'static str),
 }
 
 impl core::fmt::Display for Error {
@@ -59,6 +60,9 @@ impl Error {
             }
             Model(model::Error::EntityNotFound { entity, id }) => {
                 (StatusCode::BAD_REQUEST, ClientError::ENTITY_NOT_FOUND { entity, id: *id })
+            }
+            Router(err) => {
+                (StatusCode::BAD_REQUEST, ClientError::INVALID_DATA(err))
             }
             _ => (
                 StatusCode::INTERNAL_SERVER_ERROR,

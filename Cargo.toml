@@ -9,10 +9,11 @@ tokio = { version = "1.37.0", features = ["full"]}
 async-trait = "0.1.80"
 
 # -- Web
-axum = "0.7.5"
+axum = { version = "0.7.5", features = ["multipart"]}
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"]}
 tower-cookies = "0.10.0"
+tower-http = { version = "0.5.2", features = ["fs"] }
 
 # -- Json
 serde = {version = "1.0.202", features = ["derive"]}
@@ -39,3 +40,4 @@ rand = "0.8.5"
 anyhow = "1.0.86"
 strum_macros = "0.26.2"
 time = "0.3.36"
+

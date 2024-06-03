@@ -1,5 +1,5 @@
-use crate::{model::Result, utils::time::format_time_for_br_format};
-use chrono::{DateTime, NaiveDate, Utc};
+use crate::model::Result;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlb::Fields;
 use sqlx::FromRow;
