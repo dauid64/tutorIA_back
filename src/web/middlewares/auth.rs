@@ -56,7 +56,7 @@ async fn _ctx_resolve(mm: State<ModelManager>, cookies: &Cookies) -> CtxExtResul
         .map_err(|err| CtxExtError::ModelAccessError(err.to_string()))?
         .ok_or(CtxExtError::UserNotFound)?;
 
-    set_token_cookie(cookies, &user.username)
+    set_token_cookie(cookies, &user.username, user.id)
         .map_err(|_| CtxExtError::CannotSetTokenCookie)?;
 
     Ctx::new(user.id).map_err(|err| CtxExtError::CtxCreateFail(err.to_string()))

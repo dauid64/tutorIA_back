@@ -20,43 +20,8 @@ struct LoginPayload {
 
 pub fn routes(mm: ModelManager) -> Router {
     Router::new()
-        .route("/api/login", post(api_login_handler))
         .route("/api/usuario", post(api_create_usuario_handler))
         .with_state(mm)
-}
-
-async fn api_login_handler(
-    mm: State<ModelManager>,
-    cookies: Cookies, 
-    Json(payload): Json<LoginPayload>
-) -> Result<Json<Value>> {
-    debug!(" {:<12} - api_login_handler", "HANDLER");
-
-    let LoginPayload {
-        username,
-        pwd: pwd_clear,
-    }: LoginPayload = payload;
-
-    let user: UsuarioForLogin = UsuarioBmc::first_by_username(&mm, &username)
-        .await?
-        .ok_or(Error::LoginFailUsernameNotFound)?;
-    let user_id = user.id;
-    let Some(pwd) = user.pwd else {
-        return Err(Error::LoginFailUserHasNoPwd { user_id })
-    };
-
-    pwd::validate_pwd(&pwd_clear, &pwd)
-        .map_err(|_| Error::LoginFailPwdNotMatching { user_id })?;
-
-    web::set_token_cookie(&cookies, &user.username)?;
-
-    let body = Json(json!({
-        "result": {
-            "success": true
-        }
-    }));
-
-    Ok(body)
 }
 
 async fn api_create_usuario_handler(

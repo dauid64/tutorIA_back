@@ -1,11 +1,14 @@
+use super::Error;
+use crate::model::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
-use crate::model::Result;
-use super::Error;
 
-use super::{base::{self, DbBmc}, ModelManager};
+use super::{
+    base::{self, DbBmc},
+    ModelManager,
+};
 
 #[derive(FromRow, Serialize)]
 pub struct Materia {
@@ -22,7 +25,7 @@ pub struct MateriaForCreate {
     pub nome: String,
     pub descricao: String,
     pub professor_id: Uuid,
-    pub conteudos: Vec<String>
+    pub conteudos: Vec<String>,
 }
 
 impl MateriaForCreate {
@@ -33,19 +36,19 @@ impl MateriaForCreate {
         let conteudos = &self.conteudos;
 
         if nome.is_empty() {
-            return Err(Error::ValidateFail("Nome da matéria em branco"))
+            return Err(Error::ValidateFail("Nome da matéria em branco"));
         }
 
         if descricao.is_empty() {
-            return Err(Error::ValidateFail("Descrição da matéria em branco"))
+            return Err(Error::ValidateFail("Descrição da matéria em branco"));
         }
 
         if professor_id.is_nil() {
-            return Err(Error::ValidateFail("Nenhum professor selecionado"))
+            return Err(Error::ValidateFail("Nenhum professor selecionado"));
         }
 
         if conteudos.is_empty() {
-            return Err(Error::ValidateFail("Nenhum conteúdo selecionado"))
+            return Err(Error::ValidateFail("Nenhum conteúdo selecionado"));
         }
 
         Ok(())
@@ -77,10 +80,10 @@ impl MateriaBmc {
             materia_c.professor_id,
             &materia_c.conteudos
         )
-            .fetch_one(db)
-            .await
-            .map_err(|err| Error::Sqlx(err.to_string()))?;
-        
+        .fetch_one(db)
+        .await
+        .map_err(|err| Error::Sqlx(err.to_string()))?;
+
         Ok(query.id)
     }
 }

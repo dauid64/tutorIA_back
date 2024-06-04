@@ -1,6 +1,7 @@
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, TokenData, Validation};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 use crate::config::config;
 
 use super::error::{Result, Error};
@@ -9,17 +10,19 @@ use super::error::{Result, Error};
 pub struct Cliams {
     pub exp: usize,
     pub iat: usize,
-    pub username: String
+    pub username: String,
+    pub id: Uuid
 }
 
-pub fn encode_jwt(username: &str) -> Result<String> {
+pub fn encode_jwt(username: &str, id: Uuid) -> Result<String> {
     let now = Utc::now();
     let expire = Duration::hours(24);
 
     let claim = Cliams{
         iat: now.timestamp() as usize,
         exp: (now+expire).timestamp() as usize,
-        username: username.to_string()
+        username: username.to_string(),
+        id: id
     };
     let secret = &config().secret_jwt;
 

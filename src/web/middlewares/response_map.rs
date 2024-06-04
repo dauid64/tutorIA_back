@@ -1,7 +1,6 @@
 use axum::{http::{Method, Uri}, response::{IntoResponse, Response}, Json};
 use serde_json::{json, to_value};
 use tracing::debug;
-use tracing_subscriber::field::debug;
 use uuid::Uuid;
 
 use crate::{ctx::Ctx, web};
