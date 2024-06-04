@@ -3,4 +3,4 @@ pub mod usuario;
 pub mod server_static;
 pub mod professor;
 pub mod materia;
-pub mod authenticate;
+pub mod auth;

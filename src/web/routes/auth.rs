@@ -30,7 +30,6 @@ async fn api_login_handler(
         username,
         pwd: pwd_clear,
     }: LoginPayload = payload;
-    let root_ctx = Ctx::root_ctx();
 
     let user: UsuarioForLogin = UsuarioBmc::first_by_username(&mm, &username)
         .await?

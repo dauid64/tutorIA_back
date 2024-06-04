@@ -3,6 +3,7 @@ use tower_cookies::CookieManagerLayer;
 use tracing::info;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 use web::middlewares::auth::mw_ctx_require;
+use web::middlewares::cors::mw_cors_accept;
 use web::middlewares::response_map::mw_response_map;
 use web::routes::server_static::server_dir;
 use crate::error::Result;
@@ -33,11 +34,13 @@ async fn main() -> Result<()> {
 
     let mm = ModelManager::new().await?;
 
-    let routes_alunos = routes::aluno::routes(mm.clone()).route_layer(middleware::from_fn(mw_ctx_require));
+    let routes_alunos = routes::aluno::routes(mm.clone());
     let routes_usuario = routes::usuario::routes(mm.clone());
-    let routes_professor = routes::professor::router(mm.clone()).route_layer(middleware::from_fn(mw_ctx_require));
+    let routes_professor = routes::professor::router(mm.clone());
     let routes_materia = routes::materia::router(mm.clone()).route_layer(middleware::from_fn(mw_ctx_require));
-    let routes_authenticate = routes::authenticate::routes(mm.clone());
+    let routes_authenticate = routes::auth::routes(mm.clone());
+
+    let mw_cors_accept = mw_cors_accept().await;
 
     let routes_all = Router::new()
         .merge(routes_alunos)
@@ -48,6 +51,7 @@ async fn main() -> Result<()> {
         .layer(middleware::map_response(mw_response_map))
         .layer(middleware::from_fn_with_state(mm.clone(), mw_ctx_resolve))
         .layer(CookieManagerLayer::new())
+        .layer(mw_cors_accept)
         .fallback_service(server_dir());
 
 
