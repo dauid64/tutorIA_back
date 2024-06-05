@@ -1,8 +1,20 @@
-use axum::{extract::{Multipart, State}, routing::post, Json, Router};
+use crate::{
+    config,
+    crypt::jwt::decode_jwt,
+    model::{
+        materia::{MateriaBmc, MateriaForCreate}, professor::ProfessorBmc, ModelManager
+    },
+    web::error::{Error, Result},
+};
+use axum::{
+    extract::{Multipart, State},
+    routing::post,
+    Json, Router,
+};
 use serde_json::{json, Value};
 use tokio::{fs::File, io::AsyncWriteExt};
+use tower_cookies::Cookies;
 use uuid::Uuid;
-use crate::{config, model::{materia::{MateriaBmc, MateriaForCreate}, ModelManager}, web::error::{Error, Result}};
 
 pub fn router(mm: ModelManager) -> Router {
     Router::new()
@@ -12,9 +24,22 @@ pub fn router(mm: ModelManager) -> Router {
 
 async fn api_create_materia_handler(
     State(mm): State<ModelManager>,
-    mut multipart: Multipart
+    cookies: Cookies,
+    mut multipart: Multipart,
 ) -> Result<Json<Value>> {
+    let cookie_auth_token = cookies.get("auth-token").unwrap();
+    let jwt = cookie_auth_token.value().to_string();
+    let token = decode_jwt(jwt)?;
+    let user_id = token.claims.id;
+
+    let professor = ProfessorBmc::find_by_user_id(&mm, user_id).await?;
+
+    if professor.is_none() {
+        return  Err(Error::Unauthorized("Nenhum professor encontrado com esse id"));
+    }
+
     let mut materia_c = MateriaForCreate::default();
+    materia_c.professor_id = professor.unwrap().id;
 
     while let Some(field) = multipart.next_field().await.unwrap() {
         let field_name = field.name().unwrap().to_string();
@@ -22,12 +47,15 @@ async fn api_create_materia_handler(
         if field_name == "conteudos" {
             let original_file_name = field.file_name().unwrap().to_string();
             let new_file_name = format!("{}_{}", Uuid::new_v4(), original_file_name);
-            let file_dir = format!("{}materia/conteudos/{}.pdf", &config().web_folder, new_file_name);
+            let file_dir = format!(
+                "{}materia/conteudos/{}.pdf",
+                &config().web_folder,
+                new_file_name
+            );
 
             let data = field.bytes().await.unwrap();
 
-            let mut file = File::create(&file_dir)
-                .await.unwrap();
+            let mut file = File::create(&file_dir).await.unwrap();
             file.write(&data).await.unwrap();
 
             materia_c.conteudos.push(file_dir);
@@ -38,8 +66,9 @@ async fn api_create_materia_handler(
                 "nome" => materia_c.nome = data,
                 "descricao" => materia_c.descricao = data,
                 "professor_id" => {
-                    materia_c.professor_id = Uuid::parse_str(data.as_str())
-                        .map_err(|_| Error::Router("Não foi possível converter professor_id para Uuid"))?
+                    materia_c.professor_id = Uuid::parse_str(data.as_str()).map_err(|_| {
+                        Error::Router("Não foi possível converter professor_id para Uuid")
+                    })?
                 }
                 _ => (),
             }
@@ -55,5 +84,5 @@ async fn api_create_materia_handler(
         }
     }));
 
-    Ok(body) 
+    Ok(body)
 }

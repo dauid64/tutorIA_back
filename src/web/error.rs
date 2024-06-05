@@ -21,7 +21,10 @@ pub enum Error {
     LoginFailUserHasNoPwd{ user_id: Uuid },
     #[from(ignore)]
     LoginFailPwdNotMatching { user_id: Uuid },
+    #[from(ignore)]
     Router(&'static str),
+    #[from(ignore)]
+    Unauthorized(&'static str),
 }
 
 impl core::fmt::Display for Error {
@@ -53,7 +56,10 @@ impl Error {
             | LoginFailUserHasNoPwd { .. }
             | LoginFailPwdNotMatching { .. } => {
                 (StatusCode::FORBIDDEN, ClientError::NO_AUTH)
-            },
+            }
+            Unauthorized(err) => {
+                (StatusCode::FORBIDDEN, ClientError::INVALID_DATA(err))
+            }
             CtxExt(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
             Model(model::Error::ValidateFail(err)) => {
                 (StatusCode::BAD_REQUEST, ClientError::INVALID_DATA(err))

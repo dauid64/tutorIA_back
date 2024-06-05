@@ -7,7 +7,7 @@ use crate::config::config;
 use super::error::{Result, Error};
 
 #[derive(Serialize, Deserialize)]
-pub struct Cliams {
+pub struct Claims {
     pub exp: usize,
     pub iat: usize,
     pub username: String,
@@ -18,7 +18,7 @@ pub fn encode_jwt(username: &str, id: Uuid) -> Result<String> {
     let now = Utc::now();
     let expire = Duration::hours(24);
 
-    let claim = Cliams{
+    let claim = Claims{
         iat: now.timestamp() as usize,
         exp: (now+expire).timestamp() as usize,
         username: username.to_string(),
@@ -30,10 +30,10 @@ pub fn encode_jwt(username: &str, id: Uuid) -> Result<String> {
         .map_err(|err| Error::ErrorToEncodeJWT(err.to_string()))
 }
 
-pub fn decode_jwt(jwt: String) -> Result<TokenData<Cliams>> {
+pub fn decode_jwt(jwt: String) -> Result<TokenData<Claims>> {
     let secret = &config().secret_jwt;
-    let res: Result<TokenData<Cliams>> = decode(&jwt, &DecodingKey::from_secret(secret.as_ref()), &Validation::default())
+    let res: Result<TokenData<Claims>> = decode(&jwt, &DecodingKey::from_secret(secret.as_ref()), &Validation::default())
         .map_err(|err| Error::ErrorToDecodeJWT(err.to_string()));
-    
+
     res
 }
