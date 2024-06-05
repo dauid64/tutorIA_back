@@ -32,14 +32,14 @@ async fn api_create_materia_handler(
     let token = decode_jwt(jwt)?;
     let user_id = token.claims.id;
 
-    let professor = ProfessorBmc::find_by_user_id(&mm, user_id).await?;
-
-    if professor.is_none() {
+    let professor_opt = ProfessorBmc::find_by_user_id(&mm, user_id).await?;
+    if professor_opt.is_none() {
         return  Err(Error::Unauthorized("Nenhum professor encontrado com esse id"));
     }
+    let professor = professor_opt.unwrap();
 
     let mut materia_c = MateriaForCreate::default();
-    materia_c.professor_id = professor.unwrap().id;
+    materia_c.professor_id = professor.id;
 
     while let Some(field) = multipart.next_field().await.unwrap() {
         let field_name = field.name().unwrap().to_string();
@@ -48,8 +48,9 @@ async fn api_create_materia_handler(
             let original_file_name = field.file_name().unwrap().to_string();
             let new_file_name = format!("{}_{}", Uuid::new_v4(), original_file_name);
             let file_dir = format!(
-                "{}materia/conteudos/{}.pdf",
+                "{}materia/conteudos/{}/{}.pdf",
                 &config().web_folder,
+                professor.nome,
                 new_file_name
             );
 
