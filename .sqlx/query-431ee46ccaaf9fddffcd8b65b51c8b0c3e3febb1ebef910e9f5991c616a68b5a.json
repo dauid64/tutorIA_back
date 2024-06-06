@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT \n                professor.created_at as created_at,\n                professor.id as id,\n                professor.nome as nome,\n                usuario.username as username\n            FROM usuario \n            INNER JOIN professor ON usuario.id = professor.usuario_id\n            WHERE usuario.id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "nome",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "username",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "431ee46ccaaf9fddffcd8b65b51c8b0c3e3febb1ebef910e9f5991c616a68b5a"
+}
