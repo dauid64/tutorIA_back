@@ -31,10 +31,9 @@ pub async fn mw_ctx_resolve(
 ) -> Result<Response> {
     debug!(" {:<12} - mw_ctx_resolve", "MIDDLEWARE");
     if let Some(TypedHeader(authorization)) = authorization {
-        let token = authorization.token().to_string();
-        let jwt = token.split_whitespace().collect::<Vec<&str>>()[1];
+        let token = authorization.token();
 
-        let ctx_ext_result = _ctx_resolve(mm, jwt).await;
+        let ctx_ext_result = _ctx_resolve(mm, token).await;
     
         req.extensions_mut().insert(ctx_ext_result);
     } else {
