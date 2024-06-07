@@ -1,10 +1,7 @@
 use crate::{
-    config,
-    crypt::jwt::decode_jwt,
-    model::{
+    config, crypt::jwt::decode_jwt, ctx::Ctx, model::{
         materia::{MateriaBmc, MateriaForCreate}, professor::ProfessorBmc, ModelManager
-    },
-    web::error::{Error, Result},
+    }, web::error::{Error, Result}
 };
 use axum::{
     extract::{Multipart, State},
@@ -23,14 +20,12 @@ pub fn router(mm: ModelManager) -> Router {
 }
 
 async fn api_create_materia_handler(
+    ctx: Ctx,
     State(mm): State<ModelManager>,
     cookies: Cookies,
     mut multipart: Multipart,
 ) -> Result<Json<Value>> {
-    let cookie_auth_token = cookies.get("auth-token").unwrap();
-    let jwt = cookie_auth_token.value().to_string();
-    let token = decode_jwt(jwt)?;
-    let user_id = token.claims.id;
+    let user_id = ctx.user_id();
 
     let professor_opt = ProfessorBmc::find_by_user_id(&mm, user_id).await?;
     if professor_opt.is_none() {
@@ -48,9 +43,8 @@ async fn api_create_materia_handler(
             let original_file_name = field.file_name().unwrap().to_string();
             let new_file_name = format!("{}_{}", Uuid::new_v4(), original_file_name);
             let file_dir = format!(
-                "{}materia/conteudos/{}/{}.pdf",
+                "{}materia/conteudos/{}.pdf",
                 &config().web_folder,
-                professor.nome,
                 new_file_name
             );
 

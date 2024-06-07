@@ -2,19 +2,20 @@ use axum::async_trait;
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
 use axum::{body::Body, extract::State, http::Request, middleware::Next, response::Response};
+use axum_extra::headers::authorization;
+use axum_extra::{headers, TypedHeader};
 use serde::Serialize;
-use tower_cookies::{Cookie, Cookies};
 use tracing::debug;
 
 use crate::model::usuario::{UsuarioBmc, UsuarioForAuth};
-use crate::web::set_token_cookie;
-use crate::{ctx::Ctx, model::ModelManager, crypt::jwt::decode_jwt, web::{error::{Result, Error}, AUTH_TOKEN}};
+use crate::{
+    crypt::jwt::decode_jwt,
+    ctx::Ctx,
+    model::ModelManager,
+    web::error::{Error, Result},
+};
 
-pub async fn mw_ctx_require (
-    ctx: Result<Ctx>,
-    req: Request<Body>,
-    next: Next
-) -> Result<Response>{
+pub async fn mw_ctx_require(ctx: Result<Ctx>, req: Request<Body>, next: Next) -> Result<Response> {
     debug!(" {:<12} - mw_ctx_require - {ctx:?}", "MIDDLEWARE");
 
     ctx?;
@@ -24,40 +25,43 @@ pub async fn mw_ctx_require (
 
 pub async fn mw_ctx_resolve(
     mm: State<ModelManager>,
-    cookies: Cookies,
+    authorization: Option<TypedHeader<headers::Authorization<headers::authorization::Bearer>>>,
     mut req: Request<Body>,
     next: Next,
 ) -> Result<Response> {
     debug!(" {:<12} - mw_ctx_resolve", "MIDDLEWARE");
+    if let Some(TypedHeader(authorization)) = authorization {
+        let token = authorization.token().to_string();
+        let jwt = token.split_whitespace().collect::<Vec<&str>>()[1];
 
-    let ctx_ext_result = _ctx_resolve(mm, &cookies).await;
+        let ctx_ext_result = _ctx_resolve(mm, jwt).await;
+    
+        req.extensions_mut().insert(ctx_ext_result);
+    } else {
+        let ctx_ext_result = _ctx_resolve(mm, "").await;
 
-    if ctx_ext_result.is_err() 
-        && !matches!(ctx_ext_result, Err(CtxExtError::TokenNotInCookie))
-    {
-        cookies.remove(Cookie::from(AUTH_TOKEN))
-    }
-
-    req.extensions_mut().insert(ctx_ext_result);
+        req.extensions_mut().insert(ctx_ext_result);
+    };
 
     Ok(next.run(req).await)
-} 
+}
 
-async fn _ctx_resolve(mm: State<ModelManager>, cookies: &Cookies) -> CtxExtResult {
-    let token = cookies
-        .get(AUTH_TOKEN)
-        .map(|c| c.value().to_string())
-        .ok_or(CtxExtError::TokenNotInCookie)?;
+async fn _ctx_resolve(
+    mm: State<ModelManager>,
+    token: &str,
+) -> CtxExtResult {
+    if token.is_empty() {
+        return Err(CtxExtError::TokenNotInHeader)
+    }
 
-    let claim = decode_jwt(token).map_err(|_| CtxExtError::TokenWrongFormat)?.claims;
+    let claim = decode_jwt(token.to_string())
+        .map_err(|_| CtxExtError::TokenWrongFormat)?
+        .claims;
 
-    let user: UsuarioForAuth = UsuarioBmc::first_by_username( &mm, &claim.username)
+    let user: UsuarioForAuth = UsuarioBmc::first_by_username(&mm, &claim.username)
         .await
         .map_err(|err| CtxExtError::ModelAccessError(err.to_string()))?
         .ok_or(CtxExtError::UserNotFound)?;
-
-    set_token_cookie(cookies, &user.username, user.id)
-        .map_err(|_| CtxExtError::CannotSetTokenCookie)?;
 
     Ctx::new(user.id).map_err(|err| CtxExtError::CtxCreateFail(err.to_string()))
 }
@@ -82,11 +86,10 @@ type CtxExtResult = core::result::Result<Ctx, CtxExtError>;
 
 #[derive(Clone, Serialize, Debug)]
 pub enum CtxExtError {
-    TokenNotInCookie,
+    TokenNotInHeader,
     TokenWrongFormat,
     ModelAccessError(String),
     UserNotFound,
-    CannotSetTokenCookie,
     CtxCreateFail(String),
-    CtxNotInRequestExt
+    CtxNotInRequestExt,
 }

@@ -1,16 +1,14 @@
-use axum::routing::post;
+use axum::routing::{post};
 use axum::{extract::State, Json, Router};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use tower_cookies::Cookies;
 use tracing::debug;
 
-use crate::crypt::pwd;
-use crate::ctx::Ctx;
+use crate::crypt::{jwt, pwd};
 use crate::model::usuario::{UsuarioBmc, UsuarioForLogin};
 use crate::model::ModelManager;
-use crate::web::{self, remove_token_cookie};
-use crate::web::error::{Result, Error};
+use crate::web::error::{Error, Result};
 
 pub fn routes(mm: ModelManager) -> Router {
     Router::new()
@@ -21,8 +19,7 @@ pub fn routes(mm: ModelManager) -> Router {
 
 async fn api_login_handler(
     mm: State<ModelManager>,
-    cookies: Cookies, 
-    Json(payload): Json<LoginPayload>
+    Json(payload): Json<LoginPayload>,
 ) -> Result<Json<Value>> {
     debug!(" {:<12} - api_login_handler", "HANDLER");
 
@@ -36,19 +33,21 @@ async fn api_login_handler(
         .ok_or(Error::LoginFailUsernameNotFound)?;
     let user_id = user.id;
     let Some(pwd) = user.pwd else {
-        return Err(Error::LoginFailUserHasNoPwd{ user_id })
+        return Err(Error::LoginFailUserHasNoPwd { user_id });
     };
 
     pwd::validate_pwd(&pwd_clear, &pwd).map_err(|_| Error::LoginFailPwdNotMatching { user_id })?;
 
-    web::set_token_cookie(&cookies, &user.username, user_id)?;
+    let jwt = jwt::encode_jwt(&user.username, user_id)?;
 
     let body = Json(json!({
         "result": {
-            "success": true
+            "success": true,
+            "jwt": jwt,
+            "user_username": user.username,
+            "user_id": user_id
         }
     }));
-
 
     Ok(body)
 }
@@ -60,15 +59,10 @@ struct LoginPayload {
 }
 
 async fn api_logoff_handler(
-    cookies: Cookies,
-    Json(payload): Json<LogoffPayload>
+    Json(payload): Json<LogoffPayload>,
 ) -> Result<Json<Value>> {
     debug!(" {:<12} - api_logoff_handler", "HANDLER");
     let should_logoff = payload.logoff;
-
-    if should_logoff {
-        remove_token_cookie(&cookies)?;
-    }
 
     let body = Json(json!({
         "result": {
@@ -78,7 +72,6 @@ async fn api_logoff_handler(
 
     Ok(body)
 }
-
 
 #[derive(Debug, Deserialize)]
 struct LogoffPayload {
