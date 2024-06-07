@@ -4,7 +4,6 @@ use crate::model::ModelManager;
 use crate::web::middlewares::auth::mw_ctx_resolve;
 use crate::web::routes;
 use axum::{middleware, Router};
-use tower_cookies::CookieManagerLayer;
 use tracing::info;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 use web::middlewares::auth::mw_ctx_require;
@@ -53,7 +52,7 @@ async fn main() -> Result<()> {
         .layer(
             ServiceBuilder::new()
                 .layer(mw_cors_accept)
-                .layer(CookieManagerLayer::new())
+                // .layer(CookieManagerLayer::new())
                 .layer(middleware::from_fn_with_state(mm.clone(), mw_ctx_resolve))
                 .layer(middleware::map_response(mw_response_map)),
         )

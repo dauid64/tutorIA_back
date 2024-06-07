@@ -3,14 +3,12 @@ use axum::routing::post;
 use axum::{Json, Router};
 use serde::Deserialize;
 use serde_json::{json, Value};
-use tower_cookies::Cookies;
 use tracing::debug;
 
-use crate::crypt::{self, pwd};
-use crate::model::usuario::{UsuarioBmc, UsuarioForCreate, UsuarioForLogin};
+use crate::crypt;
+use crate::model::usuario::{UsuarioBmc, UsuarioForCreate};
 use crate::model::ModelManager;
-use crate::web;
-use crate::web::error::{Result, Error};
+use crate::web::error::Result;
 
 #[derive(Debug, Deserialize)]
 struct LoginPayload {

@@ -1,5 +1,5 @@
 use crate::{
-    config, crypt::jwt::decode_jwt, ctx::Ctx, model::{
+    config, ctx::Ctx, model::{
         materia::{MateriaBmc, MateriaForCreate}, professor::ProfessorBmc, ModelManager
     }, web::error::{Error, Result}
 };
@@ -10,7 +10,6 @@ use axum::{
 };
 use serde_json::{json, Value};
 use tokio::{fs::File, io::AsyncWriteExt};
-use tower_cookies::Cookies;
 use uuid::Uuid;
 
 pub fn router(mm: ModelManager) -> Router {
@@ -22,7 +21,6 @@ pub fn router(mm: ModelManager) -> Router {
 async fn api_create_materia_handler(
     ctx: Ctx,
     State(mm): State<ModelManager>,
-    cookies: Cookies,
     mut multipart: Multipart,
 ) -> Result<Json<Value>> {
     let user_id = ctx.user_id();

@@ -1,8 +1,7 @@
-use axum::routing::{post};
+use axum::routing::post;
 use axum::{extract::State, Json, Router};
 use serde::Deserialize;
 use serde_json::{json, Value};
-use tower_cookies::Cookies;
 use tracing::debug;
 
 use crate::crypt::{jwt, pwd};
