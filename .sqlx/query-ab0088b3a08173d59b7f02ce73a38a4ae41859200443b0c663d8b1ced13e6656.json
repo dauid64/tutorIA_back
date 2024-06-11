@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                SELECT\n                    materia.created_at as created_at,\n                    materia.id as id,\n                    materia.nome as nome,\n                    materia.descricao as descricao,\n                    materia.conteudos as conteudos,\n                    professor.nome as professor_nome,\n                    COUNT(aluno) as alunos\n                FROM materia\n                INNER JOIN professor ON materia.professor_id = professor.id\n                LEFT JOIN aluno_materia ON materia.id = aluno_materia.materia_id\n                LEFT JOIN aluno ON aluno_materia.aluno_id = aluno.id\n                WHERE materia.professor_id = $1\n                GROUP BY professor.nome, materia.id\n            ",
+  "query": "\n                SELECT\n                    materia.created_at as created_at,\n                    materia.id as id,\n                    materia.nome as nome,\n                    materia.descricao as descricao,\n                    materia.conteudos as conteudos,\n                    professor.nome as professor_nome,\n                    COUNT(aluno) as qtd_alunos\n                FROM materia\n                INNER JOIN professor ON materia.professor_id = professor.id\n                LEFT JOIN aluno_materia ON materia.id = aluno_materia.materia_id\n                LEFT JOIN aluno ON aluno_materia.aluno_id = aluno.id\n                WHERE materia.professor_id = $1\n                GROUP BY professor.nome, materia.id\n            ",
   "describe": {
     "columns": [
       {
@@ -35,7 +35,7 @@
       },
       {
         "ordinal": 6,
-        "name": "alunos",
+        "name": "qtd_alunos",
         "type_info": "Int8"
       }
     ],
@@ -54,5 +54,5 @@
       null
     ]
   },
-  "hash": "df52f22693d5f08eb549727f376eb032b9f7880022d773ddc1921e12de8cea9e"
+  "hash": "ab0088b3a08173d59b7f02ce73a38a4ae41859200443b0c663d8b1ced13e6656"
 }

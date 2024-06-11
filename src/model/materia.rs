@@ -1,10 +1,8 @@
-use super::{aluno::Aluno, Error};
+use super::Error;
 use crate::model::Result;
 use chrono::{DateTime, Utc};
-use futures::TryStreamExt;
 use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, Row};
-use tracing::debug;
+use sqlx::FromRow;
 use uuid::Uuid;
 
 use super::{base::DbBmc, ModelManager};
@@ -17,7 +15,7 @@ pub struct Materia {
     pub descricao: String,
     pub professor_nome: String,
     pub conteudos: Vec<String>,
-    pub alunos: Option<i64>,
+    pub qtd_alunos: Option<i64>,
 }
 
 #[derive(Deserialize, Default, Debug)]
@@ -89,7 +87,10 @@ impl MateriaBmc {
         Ok(id)
     }
 
-    pub async fn find_by_professor_id(mm: &ModelManager, professor_id: Uuid) -> Result<Vec<Materia>> {
+    pub async fn find_by_professor_id(
+        mm: &ModelManager,
+        professor_id: Uuid,
+    ) -> Result<Vec<Materia>> {
         let db = mm.db();
 
         let materias = sqlx::query_as!(
@@ -102,7 +103,7 @@ impl MateriaBmc {
                     materia.descricao as descricao,
                     materia.conteudos as conteudos,
                     professor.nome as professor_nome,
-                    COUNT(aluno) as alunos
+                    COUNT(aluno) as qtd_alunos
                 FROM materia
                 INNER JOIN professor ON materia.professor_id = professor.id
                 LEFT JOIN aluno_materia ON materia.id = aluno_materia.materia_id

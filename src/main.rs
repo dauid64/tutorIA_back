@@ -30,7 +30,7 @@ async fn main() -> Result<()> {
         .expect("Erro to initialize tracing");
 
     // -- FOR DEV ONLY
-    // _dev_utils::init_dev().await;
+    _dev_utils::init_dev().await;
 
     let mm = ModelManager::new().await?;
 
