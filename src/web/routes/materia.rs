@@ -5,7 +5,7 @@ use crate::{
 };
 use axum::{
     extract::{Multipart, State},
-    routing::post,
+    routing::{get, post},
     Json, Router,
 };
 use serde_json::{json, Value};
@@ -15,6 +15,7 @@ use uuid::Uuid;
 pub fn router(mm: ModelManager) -> Router {
     Router::new()
         .route("/api/materia", post(api_create_materia_handler))
+        .route("/api/materia", get(api_search_materia_handler))
         .with_state(mm)
 }
 
@@ -74,6 +75,30 @@ async fn api_create_materia_handler(
     let body = Json(json!({
         "result": {
             "id": id
+        }
+    }));
+
+    Ok(body)
+}
+
+async fn api_search_materia_handler(
+    ctx: Ctx,
+    State(mm): State<ModelManager>,
+) -> Result<Json<Value>> {
+    let user_id = ctx.user_id();
+
+    let professor_opt = ProfessorBmc::find_by_user_id(&mm, user_id).await?;
+    if professor_opt.is_none() {
+        return  Err(Error::Unauthorized("Nenhum professor encontrado com esse id"));
+    }
+
+    let professor = professor_opt.unwrap();
+
+    let materias = MateriaBmc::find_by_professor_id(&mm, professor.id).await?;
+
+    let body = Json(json!({
+        "result": {
+            "materias": materias
         }
     }));
 

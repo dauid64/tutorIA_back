@@ -2,7 +2,7 @@ use crate::model::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlb::Fields;
-use sqlx::FromRow;
+use sqlx::{prelude::Type, FromRow};
 use uuid::Uuid;
 
 use super::{
@@ -10,8 +10,16 @@ use super::{
     Error, ModelManager,
 };
 
-#[derive(FromRow, Serialize)]
+#[derive(FromRow, Serialize, Type)]
+#[sqlx(type_name = "aluno")]
 pub struct Aluno {
+    pub created_at: Option<DateTime<Utc>>,
+    pub id: Uuid,
+    pub nome: String,
+}
+
+#[derive(FromRow, Serialize)]
+pub struct AlunoWithUser {
     pub created_at: Option<DateTime<Utc>>,
     pub id: Uuid,
     pub username: String,
@@ -51,11 +59,11 @@ impl AlunoBmc {
         base::create::<Self, _>(mm, aluno_c).await
     }
 
-    pub async fn search_with_join_user(mm: &ModelManager) -> Result<Vec<Aluno>> {
+    pub async fn search_with_join_user(mm: &ModelManager) -> Result<Vec<AlunoWithUser>> {
         let db = mm.db();
 
         let alunos = sqlx::query_as!(
-            Aluno,
+            AlunoWithUser,
             "
             SELECT
                 aluno.created_at as created_at,

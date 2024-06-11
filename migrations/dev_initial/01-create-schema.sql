@@ -42,3 +42,11 @@ CREATE TABLE "materia" (
         REFERENCES professor(id)
         ON DELETE CASCADE
 );
+
+CREATE TABLE "aluno_materia" (
+    aluno_id uuid NOT NULL,
+    materia_id uuid NOT NULL,
+    PRIMARY KEY (aluno_id, materia_id),
+    FOREIGN KEY (aluno_id) REFERENCES aluno(id),
+    FOREIGN KEY (materia_id) REFERENCES materia(id)
+);

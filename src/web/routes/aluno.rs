@@ -1,7 +1,5 @@
 use crate::model::aluno::{AlunoBmc, AlunoForCreate};
-use crate::web::middlewares::auth::mw_ctx_require;
 use crate::{model::ModelManager, web::error::Result};
-use axum::middleware;
 use axum::routing::get;
 use axum::{extract::State, routing::post, Json, Router};
 use serde_json::{json, Value};

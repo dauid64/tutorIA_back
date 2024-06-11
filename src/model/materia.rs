@@ -1,14 +1,13 @@
-use super::Error;
+use super::{aluno::Aluno, Error};
 use crate::model::Result;
 use chrono::{DateTime, Utc};
+use futures::TryStreamExt;
 use serde::{Deserialize, Serialize};
-use sqlx::FromRow;
+use sqlx::{FromRow, Row};
+use tracing::debug;
 use uuid::Uuid;
 
-use super::{
-    base::{self, DbBmc},
-    ModelManager,
-};
+use super::{base::DbBmc, ModelManager};
 
 #[derive(FromRow, Serialize)]
 pub struct Materia {
@@ -18,6 +17,7 @@ pub struct Materia {
     pub descricao: String,
     pub professor_nome: String,
     pub conteudos: Vec<String>,
+    pub alunos: Option<i64>,
 }
 
 #[derive(Deserialize, Default, Debug)]
@@ -84,6 +84,38 @@ impl MateriaBmc {
         .await
         .map_err(|err| Error::Sqlx(err.to_string()))?;
 
-        Ok(query.id)
+        let id = query.id;
+
+        Ok(id)
+    }
+
+    pub async fn find_by_professor_id(mm: &ModelManager, professor_id: Uuid) -> Result<Vec<Materia>> {
+        let db = mm.db();
+
+        let materias = sqlx::query_as!(
+            Materia,
+            r#"
+                SELECT
+                    materia.created_at as created_at,
+                    materia.id as id,
+                    materia.nome as nome,
+                    materia.descricao as descricao,
+                    materia.conteudos as conteudos,
+                    professor.nome as professor_nome,
+                    COUNT(aluno) as alunos
+                FROM materia
+                INNER JOIN professor ON materia.professor_id = professor.id
+                LEFT JOIN aluno_materia ON materia.id = aluno_materia.materia_id
+                LEFT JOIN aluno ON aluno_materia.aluno_id = aluno.id
+                WHERE materia.professor_id = $1
+                GROUP BY professor.nome, materia.id
+            "#,
+            professor_id
+        )
+        .fetch_all(db)
+        .await
+        .map_err(|err| Error::Sqlx(err.to_string()))?;
+
+        Ok(materias)
     }
 }

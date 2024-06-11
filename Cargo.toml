@@ -42,4 +42,5 @@ rand = "0.8.5"
 anyhow = "1.0.86"
 strum_macros = "0.26.2"
 time = "0.3.36"
+futures = "0.3.30"
 
