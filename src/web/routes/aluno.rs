@@ -32,7 +32,9 @@ async fn api_search_aluno_handler(State(mm): State<ModelManager>) -> Result<Json
     let alunos = AlunoBmc::search_with_join_user(&mm).await?;
 
     let body_response = json!({
-        "alunos": alunos
+        "result": {
+            "alunos": alunos
+        }
     });
 
     Ok(Json(body_response))
