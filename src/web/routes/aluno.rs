@@ -7,15 +7,10 @@ use axum::{extract::State, routing::post, Json, Router};
 use serde_json::{json, Value};
 
 pub fn routes(mm: ModelManager) -> Router {
-    let route_list = Router::new()
+    Router::new()
         .route("/api/aluno", get(api_search_aluno_handler))
-        .layer(middleware::from_fn(mw_ctx_require))
-        .with_state(mm.clone());
-    let route_create = Router::new()
         .route("/api/aluno", post(api_create_aluno_handler))
-        .with_state(mm.clone());
-
-    return route_list.merge(route_create);
+        .with_state(mm.clone())
 }
 
 async fn api_create_aluno_handler(

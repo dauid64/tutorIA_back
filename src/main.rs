@@ -34,7 +34,8 @@ async fn main() -> Result<()> {
 
     let mm = ModelManager::new().await?;
 
-    let routes_alunos = routes::aluno::routes(mm.clone());
+    let routes_alunos = routes::aluno::routes(mm.clone())
+        .route_layer(middleware::from_fn(mw_ctx_require));
     let routes_usuario = routes::usuario::routes(mm.clone());
     let routes_professor = routes::professor::router(mm.clone());
     let routes_materia =

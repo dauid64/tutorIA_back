@@ -37,6 +37,7 @@ WORKDIR /usr/src/app
 COPY --from=builder /usr/src/app/target/release/tutorIA_back /usr/src/app/tutorIA_back
 
 COPY migrations /usr/app/migrations
+COPY ./static  /usr/app/static
 
 # Set permissions to execute
 RUN chmod +x /usr/src/app/tutorIA_back

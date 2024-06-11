@@ -12,7 +12,6 @@ use crate::web::error::{Error, Result};
 pub fn routes(mm: ModelManager) -> Router {
     Router::new()
         .route("/api/login", post(api_login_handler))
-        .route("/api/logoff", post(api_logoff_handler))
         .with_state(mm)
 }
 
@@ -55,24 +54,4 @@ async fn api_login_handler(
 struct LoginPayload {
     username: String,
     pwd: String,
-}
-
-async fn api_logoff_handler(
-    Json(payload): Json<LogoffPayload>,
-) -> Result<Json<Value>> {
-    debug!(" {:<12} - api_logoff_handler", "HANDLER");
-    let should_logoff = payload.logoff;
-
-    let body = Json(json!({
-        "result": {
-            "logged_off": should_logoff
-        }
-    }));
-
-    Ok(body)
-}
-
-#[derive(Debug, Deserialize)]
-struct LogoffPayload {
-    logoff: bool,
 }
