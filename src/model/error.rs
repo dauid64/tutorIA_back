@@ -16,8 +16,6 @@ pub enum Error {
     Sqlx(String),
     ValidateFail(&'static str),
     Utils(utils::error::Error),
-    #[from(ignore)]
-    FieldNotFound(&'static str)
 }
 
 // region:    --- Error Boilerplate

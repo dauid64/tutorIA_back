@@ -1,13 +1,19 @@
 use crate::{
-    config, ctx::Ctx, model::{
-        materia::{MateriaBmc, MateriaForCreate}, professor::ProfessorBmc, ModelManager
-    }, web::error::{Error, Result}
+    config,
+    ctx::Ctx,
+    model::{
+        materia::{MateriaBmc, MateriaForCreate},
+        professor::ProfessorBmc,
+        ModelManager,
+    },
+    web::error::{Error, Result},
 };
 use axum::{
     extract::{Multipart, State},
     routing::{get, post},
     Json, Router,
 };
+use serde::Deserialize;
 use serde_json::{json, Value};
 use tokio::{fs::File, io::AsyncWriteExt};
 use uuid::Uuid;
@@ -15,7 +21,8 @@ use uuid::Uuid;
 pub fn router(mm: ModelManager) -> Router {
     Router::new()
         .route("/api/materia", post(api_create_materia_handler))
-        .route("/api/materia", get(api_search_materia_handler))
+        .route("/api/materia", get(api_find_materia_handler))
+        .route("/api/materia/aluno/add", post(api_add_aluno_in_materia))
         .with_state(mm)
 }
 
@@ -28,7 +35,9 @@ async fn api_create_materia_handler(
 
     let professor_opt = ProfessorBmc::find_by_user_id(&mm, user_id).await?;
     if professor_opt.is_none() {
-        return  Err(Error::Unauthorized("Nenhum professor encontrado com esse id"));
+        return Err(Error::Unauthorized(
+            "Nenhum professor encontrado com esse id",
+        ));
     }
     let professor = professor_opt.unwrap();
 
@@ -81,7 +90,7 @@ async fn api_create_materia_handler(
     Ok(body)
 }
 
-async fn api_search_materia_handler(
+async fn api_find_materia_handler(
     ctx: Ctx,
     State(mm): State<ModelManager>,
 ) -> Result<Json<Value>> {
@@ -89,7 +98,9 @@ async fn api_search_materia_handler(
 
     let professor_opt = ProfessorBmc::find_by_user_id(&mm, user_id).await?;
     if professor_opt.is_none() {
-        return  Err(Error::Unauthorized("Nenhum professor encontrado com esse id"));
+        return Err(Error::Unauthorized(
+            "Nenhum professor encontrado com esse id",
+        ));
     }
 
     let professor = professor_opt.unwrap();
@@ -103,4 +114,31 @@ async fn api_search_materia_handler(
     }));
 
     Ok(body)
+}
+
+async fn api_add_aluno_in_materia(
+    State(mm): State<ModelManager>,
+    Json(payload): Json<AddAlunoMateriaPayload>,
+) -> Result<Json<Value>> {
+    let materia_id =
+        Uuid::parse_str(&payload.materia_id).map_err(|err| Error::InvalidUuid(err.to_string()))?;
+
+    let aluno_id =
+        Uuid::parse_str(&payload.aluno_id).map_err(|err| Error::InvalidUuid(err.to_string()))?;
+
+    MateriaBmc::add_user(&mm, aluno_id, materia_id).await?;
+
+    let body = Json(json!({
+        "result": {
+            "success": true
+        }
+    }));
+
+    Ok(body)
+}
+
+#[derive(Deserialize)]
+struct AddAlunoMateriaPayload {
+    materia_id: String,
+    aluno_id: String,
 }

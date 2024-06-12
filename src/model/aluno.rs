@@ -64,19 +64,45 @@ impl AlunoBmc {
 
         let alunos = sqlx::query_as!(
             AlunoWithUser,
-            "
+            r#"
             SELECT
                 aluno.created_at as created_at,
                 aluno.id as id,
                 aluno.nome as nome,
                 usuario.username as username
             FROM aluno INNER JOIN usuario ON aluno.usuario_id = usuario.id
-            "
+            "#
         )
         .fetch_all(db)
         .await
         .map_err(|err| Error::Sqlx(err.to_string()))?;
 
         Ok(alunos)
+    }
+
+    pub async fn find_by_user_Id(
+        mm: &ModelManager,
+        user_id: Uuid,
+    ) -> Result<Option<AlunoWithUser>> {
+        let db = mm.db();
+
+        let aluno = sqlx::query_as!(
+            AlunoWithUser,
+            r#"
+            SELECT
+                aluno.created_at as created_at,
+                aluno.id as id,
+                aluno.nome as nome,
+                usuario.username as username
+            FROM aluno INNER JOIN usuario ON aluno.usuario_id = usuario.id
+            WHERE usuario.id = $1
+            "#,
+            user_id
+        )
+        .fetch_optional(db)
+        .await
+        .map_err(|err| Error::Sqlx(err.to_string()))?;
+
+        Ok(aluno)
     }
 }

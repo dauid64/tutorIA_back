@@ -1,5 +1,4 @@
-use super::Error;
-use crate::model::Result;
+use crate::model::{Error, Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
@@ -85,6 +84,24 @@ impl MateriaBmc {
         let id = query.id;
 
         Ok(id)
+    }
+
+    pub async fn add_user(mm: &ModelManager, aluno_id: Uuid, materia_id: Uuid) -> Result<()> {
+        let db = mm.db();
+
+        sqlx::query(
+            r#"
+                INSERT INTO aluno_materia (aluno_id, materia_id)
+                VALUES ($1, $2)
+            "#,
+        )
+        .bind(aluno_id)
+        .bind(materia_id)
+        .execute(db)
+        .await
+        .map_err(|err| Error::Sqlx(err.to_string()))?;
+
+        Ok(())
     }
 
     pub async fn find_by_professor_id(

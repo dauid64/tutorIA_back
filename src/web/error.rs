@@ -25,6 +25,7 @@ pub enum Error {
     Router(&'static str),
     #[from(ignore)]
     Unauthorized(&'static str),
+    InvalidUuid(String)
 }
 
 impl core::fmt::Display for Error {

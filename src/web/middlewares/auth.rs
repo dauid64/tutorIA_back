@@ -2,7 +2,6 @@ use axum::async_trait;
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
 use axum::{body::Body, extract::State, http::Request, middleware::Next, response::Response};
-use axum_extra::headers::authorization;
 use axum_extra::{headers, TypedHeader};
 use serde::Serialize;
 use tracing::debug;
