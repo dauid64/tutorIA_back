@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                aluno.created_at as created_at,\n                aluno.id as id,\n                aluno.nome as nome,\n                usuario.username as username\n            FROM aluno\n            INNER JOIN usuario ON aluno.usuario_id = usuario.id\n            INNER JOIN aluno_materia ON aluno.id = aluno_materia.aluno_id AND aluno_materia.materia_id = $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "nome",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "username",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "66c50017fb2ad31447c082149445f0ed157a49b5f609c04141361ad2610e2226"
+}

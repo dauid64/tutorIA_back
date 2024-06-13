@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
-use super::{base::DbBmc, ModelManager};
+use super::{aluno::AlunoWithUser, base::DbBmc, ModelManager};
 
 #[derive(FromRow, Serialize)]
 pub struct Materia {
@@ -86,7 +86,7 @@ impl MateriaBmc {
         Ok(id)
     }
 
-    pub async fn add_user(mm: &ModelManager, aluno_id: Uuid, materia_id: Uuid) -> Result<()> {
+    pub async fn add_aluno(mm: &ModelManager, aluno_id: Uuid, materia_id: Uuid) -> Result<()> {
         let db = mm.db();
 
         sqlx::query(
@@ -102,6 +102,79 @@ impl MateriaBmc {
         .map_err(|err| Error::Sqlx(err.to_string()))?;
 
         Ok(())
+    }
+
+    pub async fn remove_aluno(mm: &ModelManager, aluno_id: Uuid, materia_id: Uuid) -> Result<()> {
+        let db = mm.db();
+
+        sqlx::query(
+            r#"
+                DELETE FROM aluno_materia
+                WHERE aluno_id = $1 AND materia_id = $2
+            "#,
+        )
+        .bind(aluno_id)
+        .bind(materia_id)
+        .execute(db)
+        .await
+        .map_err(|err| Error::Sqlx(err.to_string()))?;
+
+        Ok(())
+    }
+
+    pub async fn find_alunos_registered(
+        mm: &ModelManager,
+        materia_id: Uuid,
+    ) -> Result<Vec<AlunoWithUser>> {
+        let db = mm.db();
+
+        let alunos = sqlx::query_as!(
+            AlunoWithUser,
+            r#"
+            SELECT
+                aluno.created_at as created_at,
+                aluno.id as id,
+                aluno.nome as nome,
+                usuario.username as username
+            FROM aluno
+            INNER JOIN usuario ON aluno.usuario_id = usuario.id
+            INNER JOIN aluno_materia ON aluno.id = aluno_materia.aluno_id AND aluno_materia.materia_id = $1
+            "#,
+            materia_id
+        )
+        .fetch_all(db)
+        .await
+        .map_err(|err| Error::Sqlx(err.to_string()))?;
+
+        Ok(alunos)
+    }
+
+    pub async fn find_alunos_not_registered(
+        mm: &ModelManager,
+        materia_id: Uuid,
+    ) -> Result<Vec<AlunoWithUser>> {
+        let db = mm.db();
+
+        let alunos = sqlx::query_as!(
+            AlunoWithUser,
+            r#"
+            SELECT
+                aluno.created_at as created_at,
+                aluno.id as id,
+                aluno.nome as nome,
+                usuario.username as username
+            FROM aluno
+            INNER JOIN usuario ON aluno.usuario_id = usuario.id
+            LEFT JOIN aluno_materia ON aluno.id = aluno_materia.aluno_id AND aluno_materia.materia_id = $1
+            WHERE aluno_materia.materia_id IS NULL
+            "#,
+            materia_id
+        )
+        .fetch_all(db)
+        .await
+        .map_err(|err| Error::Sqlx(err.to_string()))?;
+
+        Ok(alunos)
     }
 
     pub async fn find_by_professor_id(

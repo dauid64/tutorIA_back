@@ -9,7 +9,7 @@ use crate::{
     web::error::{Error, Result},
 };
 use axum::{
-    extract::{Multipart, State},
+    extract::{Multipart, Path, State},
     routing::{get, post},
     Json, Router,
 };
@@ -22,7 +22,19 @@ pub fn router(mm: ModelManager) -> Router {
     Router::new()
         .route("/api/materia", post(api_create_materia_handler))
         .route("/api/materia", get(api_find_materia_handler))
-        .route("/api/materia/aluno/add", post(api_add_aluno_in_materia))
+        .route("/api/materia/aluno/add", post(api_add_aluno_of_materia))
+        .route(
+            "/api/materia/aluno/remove",
+            post(api_remove_aluno_of_materia),
+        )
+        .route(
+            "/api/materia/:materia_id/alunos/registered",
+            get(api_find_alunos_registered_in_materia),
+        )
+        .route(
+            "/api/materia/:materia_id/alunos/not-registered",
+            get(api_find_alunos_not_registered_in_materia),
+        )
         .with_state(mm)
 }
 
@@ -90,10 +102,7 @@ async fn api_create_materia_handler(
     Ok(body)
 }
 
-async fn api_find_materia_handler(
-    ctx: Ctx,
-    State(mm): State<ModelManager>,
-) -> Result<Json<Value>> {
+async fn api_find_materia_handler(ctx: Ctx, State(mm): State<ModelManager>) -> Result<Json<Value>> {
     let user_id = ctx.user_id();
 
     let professor_opt = ProfessorBmc::find_by_user_id(&mm, user_id).await?;
@@ -116,9 +125,9 @@ async fn api_find_materia_handler(
     Ok(body)
 }
 
-async fn api_add_aluno_in_materia(
+async fn api_add_aluno_of_materia(
     State(mm): State<ModelManager>,
-    Json(payload): Json<AddAlunoMateriaPayload>,
+    Json(payload): Json<AlunoMateriaPayload>,
 ) -> Result<Json<Value>> {
     let materia_id =
         Uuid::parse_str(&payload.materia_id).map_err(|err| Error::InvalidUuid(err.to_string()))?;
@@ -126,7 +135,28 @@ async fn api_add_aluno_in_materia(
     let aluno_id =
         Uuid::parse_str(&payload.aluno_id).map_err(|err| Error::InvalidUuid(err.to_string()))?;
 
-    MateriaBmc::add_user(&mm, aluno_id, materia_id).await?;
+    MateriaBmc::add_aluno(&mm, aluno_id, materia_id).await?;
+
+    let body = Json(json!({
+        "result": {
+            "success": true
+        }
+    }));
+
+    Ok(body)
+}
+
+async fn api_remove_aluno_of_materia(
+    State(mm): State<ModelManager>,
+    Json(payload): Json<AlunoMateriaPayload>,
+) -> Result<Json<Value>> {
+    let materia_id =
+        Uuid::parse_str(&payload.materia_id).map_err(|err| Error::InvalidUuid(err.to_string()))?;
+
+    let aluno_id =
+        Uuid::parse_str(&payload.aluno_id).map_err(|err| Error::InvalidUuid(err.to_string()))?;
+
+    MateriaBmc::remove_aluno(&mm, aluno_id, materia_id).await?;
 
     let body = Json(json!({
         "result": {
@@ -138,7 +168,45 @@ async fn api_add_aluno_in_materia(
 }
 
 #[derive(Deserialize)]
-struct AddAlunoMateriaPayload {
+struct AlunoMateriaPayload {
     materia_id: String,
     aluno_id: String,
+}
+
+async fn api_find_alunos_registered_in_materia(
+    State(mm): State<ModelManager>,
+    Path(materia_id): Path<String>,
+) -> Result<Json<Value>> {
+    let materia_id =
+        Uuid::parse_str(&materia_id).map_err(|err| Error::InvalidUuid(err.to_string()))?;
+
+    let alunos_registered = MateriaBmc::find_alunos_registered(&mm, materia_id).await?;
+
+    let body = Json(json!({
+        "result": {
+            "success": true,
+            "alunos_registered": alunos_registered
+        }
+    }));
+
+    Ok(body)
+}
+
+async fn api_find_alunos_not_registered_in_materia(
+    State(mm): State<ModelManager>,
+    Path(materia_id): Path<String>,
+) -> Result<Json<Value>> {
+    let materia_id =
+        Uuid::parse_str(&materia_id).map_err(|err| Error::InvalidUuid(err.to_string()))?;
+
+    let alunos_not_registered = MateriaBmc::find_alunos_not_registered(&mm, materia_id).await?;
+
+    let body = Json(json!({
+        "result": {
+            "success": true,
+            "alunos_not_registered": alunos_not_registered
+        }
+    }));
+
+    Ok(body)
 }
