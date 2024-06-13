@@ -41,6 +41,7 @@ async fn main() -> Result<()> {
     let routes_materia =
         routes::materia::router(mm.clone()).route_layer(middleware::from_fn(mw_ctx_require));
     let routes_authenticate = routes::auth::routes(mm.clone());
+    let routes_jwt = routes::jwt::routes().route_layer(middleware::from_fn(mw_ctx_require));
 
     let mw_cors_accept = mw_cors_accept().await;
 
@@ -50,6 +51,7 @@ async fn main() -> Result<()> {
         .merge(routes_professor)
         .merge(routes_materia)
         .merge(routes_authenticate)
+        .merge(routes_jwt)
         .layer(
             ServiceBuilder::new()
                 .layer(mw_cors_accept)

@@ -1,4 +1,4 @@
-use axum::routing::post;
+use axum::routing::{post};
 use axum::{extract::State, Json, Router};
 use serde::Deserialize;
 use serde_json::{json, Value};
