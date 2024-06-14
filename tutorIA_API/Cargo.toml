@@ -5,6 +5,8 @@ edition = "2021"
 description = "API REST para a consumação do tutorIA front"
 
 [dependencies]
+# -- TutorIA Agent
+tutorIA_agent = { path = "../tutorIA_agent"}
 # -- Async
 tokio = { version = "1.37.0", features = ["full"]}
 async-trait = "0.1.80"

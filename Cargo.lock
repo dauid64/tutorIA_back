@@ -2351,6 +2351,7 @@ dependencies = [
  "tower-http",
  "tracing",
  "tracing-subscriber",
+ "tutorIA_agent",
  "uuid",
 ]
 
