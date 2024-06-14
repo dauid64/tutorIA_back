@@ -2324,7 +2324,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "tutorIA_back"
+name = "tutorIA_API"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -2353,6 +2353,10 @@ dependencies = [
  "tracing-subscriber",
  "uuid",
 ]
+
+[[package]]
+name = "tutorIA_agent"
+version = "0.1.0"
 
 [[package]]
 name = "typenum"

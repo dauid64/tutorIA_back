@@ -9,6 +9,7 @@ pub mod aluno;
 pub mod usuario;
 pub mod professor;
 pub mod materia;
+pub mod tutor;
 
 #[derive(Clone)]
 pub struct ModelManager {

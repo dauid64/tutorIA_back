@@ -11,3 +11,23 @@ Porém, antes de executar o build da imagem, você precisa ajustar as váriaveis
 ```bash
 docker build -f Dockerfile.dev -t dauid64/tutoria1.0 .
 ```
+
+## Run da aplicação
+
+Para executar a aplicação, em um terminal, e na mesma pasta em que está o arquivo `docker-compose.yml` (raiz do projeto) execute o seguinte comando para inicializar o docker com o banco de dados e o admin:
+
+```bash
+docker-compose up
+```
+
+Agora vamos rodar a aplicação com o cargo watch:
+
+```bash
+cargo watch -q -c -w tutorIA_API/src -w tutorIA_agent/src -w .cargo/ -x "run"
+```
+
+Sem cargo watch:
+
+```bash
+cargo run
+```

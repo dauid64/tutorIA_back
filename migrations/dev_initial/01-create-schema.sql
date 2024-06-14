@@ -44,9 +44,35 @@ CREATE TABLE "materia" (
 );
 
 CREATE TABLE "aluno_materia" (
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     aluno_id uuid NOT NULL,
     materia_id uuid NOT NULL,
     PRIMARY KEY (aluno_id, materia_id),
     FOREIGN KEY (aluno_id) REFERENCES aluno(id),
     FOREIGN KEY (materia_id) REFERENCES materia(id)
+);
+
+CREATE TABLE "tutor" (
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    nome varchar(128) NOT NULL,
+    materia_id uuid NOT NULL,
+
+    FOREIGN KEY (materia_id)
+        REFERENCES materia(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE "conversas" (
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    aluno_id uuid NOT NULL,
+    tutor_id uuid NOT NULL,
+    mensagem TEXT NOT NULL,
+    thread_id varchar(128) NOT NULL,
+    
+    FOREIGN KEY (aluno_id) 
+        REFERENCES aluno(id),
+    
+    FOREIGN KEY (tutor_id) 
+        REFERENCES tutor(id)
 );
