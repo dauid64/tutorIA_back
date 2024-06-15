@@ -14,15 +14,13 @@ pub fn config() -> &'static Config {
 
 pub struct Config {
     pub openai_api_key: String,
-    pub tutorIA_model: String,
 }
 
 impl Config {
     fn load_from_env() -> Result<Config> {
         Ok(
             Config {
-                openai_api_key: get_env("OPENAI_API_KEY")?,
-                tutorIA_model: get_env("TUTORIA_MODEL")?,
+                openai_api_key: get_env("OPENAI_API_KEY")?
             }
         )
     }

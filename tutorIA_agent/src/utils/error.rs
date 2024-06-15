@@ -1,9 +1,12 @@
+use derive_more::From;
+
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug)]
+#[derive(Debug, From)]
 pub enum Error {
     FileNotFound(String),
     ReadFileError(std::io::Error),
+    ErroDeserializeToml(toml::de::Error)
 }
 
 // region:    --- Error Boilerplate

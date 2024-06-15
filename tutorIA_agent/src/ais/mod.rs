@@ -1,28 +1,22 @@
-use crate::ais::error::Result;
+use crate::{ais::error::Result, config, tutoria::config::Config};
 use async_openai::{config::OpenAIConfig, types::{CreateAssistantRequestArgs, CreateThreadRequestArgs, ThreadObject}, Client};
+use derive_more::From;
 
 pub mod error;
+pub mod assistand;
 
+pub type OaClient = Client<OpenAIConfig>;
+
+#[derive(From)]
 pub struct AsstId(String);
 
-pub async fn create_thread(client: Client<OpenAIConfig>) -> Result<ThreadObject> {
-    let thread_request = CreateThreadRequestArgs::default().build()?;
 
-    let thread = client.threads().create(thread_request.clone()).await?;
+pub fn new_oa_client() -> Result<OaClient> {
+    let api_key = &config().openai_api_key;
 
-    Ok(thread)
-}
+    let config = OpenAIConfig::new().with_api_key(api_key);
 
-pub async fn create_assitant(client: Client<OpenAIConfig>, name: &str, instructions: String, model: &String) -> Result<String> {
-    let assistant_request = CreateAssistantRequestArgs::default()
-        .name(name)
-        .instructions(&instructions)
-        .model(model)
-        .build()?;
-
-    let assistant = client.assistants().create(assistant_request).await?;
-
-    let assistant_id = assistant.id;
-
-    Ok(assistant_id)
+    let oac = Client::with_config(config);
+    
+    Ok(oac)
 }

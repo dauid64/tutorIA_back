@@ -11,3 +11,12 @@ pub fn file_to_string(file: &Path) -> Result<String> {
     
     Ok(content)
 }
+
+pub fn load_from_toml<T>(file: impl AsRef<Path>) -> Result<T>
+    where 
+        T: serde::de::DeserializeOwned
+{
+    let content = read_to_string(file.as_ref())?;
+
+    Ok(toml::from_str(&content)?)
+}

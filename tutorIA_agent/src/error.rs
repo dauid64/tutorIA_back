@@ -1,4 +1,4 @@
-use crate::{ais, utils};
+use crate::{ais, tutoria, utils};
 use derive_more::From;
 
 pub type Result<T> = core::result::Result<T, Error>;
@@ -7,7 +7,8 @@ pub type Result<T> = core::result::Result<T, Error>;
 pub enum Error {
     ConfigMissingEnv(&'static str),
     UtilsError(utils::error::Error),
-    AisError(ais::error::Error)
+    AisError(ais::error::Error),
+    TutorIA(tutoria::error::Error)
 }
 
 // region:    --- Error Boilerplate

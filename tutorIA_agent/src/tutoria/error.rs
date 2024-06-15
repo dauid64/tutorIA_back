@@ -1,8 +1,12 @@
+use crate::{ais, utils};
+use derive_more::From;
+
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug)]
+#[derive(Debug, From)]
 pub enum Error {
-    // TBC
+    AIError(ais::error::Error),
+    UtilsError(utils::error::Error),
 }
 
 // region:    --- Error Boilerplate
