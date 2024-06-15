@@ -63,7 +63,7 @@ CREATE TABLE "tutor" (
         ON DELETE CASCADE
 );
 
-CREATE TABLE "conversas" (
+CREATE TABLE "mensagem" (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     aluno_id uuid NOT NULL,
     tutor_id uuid NOT NULL,
@@ -71,8 +71,10 @@ CREATE TABLE "conversas" (
     thread_id varchar(128) NOT NULL,
     
     FOREIGN KEY (aluno_id) 
-        REFERENCES aluno(id),
+        REFERENCES aluno(id)
+        ON DELETE CASCADE,
     
     FOREIGN KEY (tutor_id) 
         REFERENCES tutor(id)
+        ON DELETE CASCADE
 );

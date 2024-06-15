@@ -1,6 +1,6 @@
 [env]
 
-RUST_LOG="tutorIA_back=debug"
+RUST_LOG="tutorIA_API=debug"
 
 SERVICE_PORT="3000"
 
@@ -15,3 +15,7 @@ PWD_KEY="CHANGE-ME"
 SQLX_OFFLINE="true"
 
 WEB_FOLDER="static/"
+
+OPENAI_API_KEY="CHANGE-ME"
+
+TUTORIA_MODEL="gpt-3.5-turbo"

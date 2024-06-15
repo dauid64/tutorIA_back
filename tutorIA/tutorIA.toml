@@ -1,0 +1,3 @@
+name = "TutorIA"
+model = "gpt-3.5-turbo"
+instructions_file = "../instructions.md"
