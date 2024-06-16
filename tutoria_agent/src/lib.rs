@@ -1,5 +1,5 @@
 use config::config;
-use tutoria::{ctx::Context, TutorIA};
+use tutoria::TutorIA;
 
 use crate::error::Result;
 
@@ -11,10 +11,12 @@ mod utils;
 
 const DIR: &str = "../tutorIA";
 
-pub async fn create_tutoria_assistant(assistant_name: String, ctx: Context) -> Result<TutorIA> {
-    let tutoria = TutorIA::init_from_dir(DIR, assistant_name, ctx).await?;
+pub struct TutorIAContext {
+    pub materia: String
+}
 
-    println!("{:?}", tutoria);
+pub async fn create_tutoria_assistant(assistant_name: String, ctx: TutorIAContext) -> Result<TutorIA> {
+    let tutoria = TutorIA::init_from_dir(DIR, assistant_name, ctx).await?;
 
     Ok(tutoria)
 }
@@ -31,7 +33,7 @@ mod tests {
 
     #[tokio::test]
     async fn create_tutoria_assistant_ok() -> Result<()> {
-        let tutoria = create_tutoria_assistant("teste".to_string(), Context { materia: "Matematica".to_string()}).await?;
+        let tutoria = create_tutoria_assistant("teste".to_string(), TutorIAContext { materia: "matematica".to_string()}).await?;
 
         delete_tutoria_assistant(tutoria).await?;
 

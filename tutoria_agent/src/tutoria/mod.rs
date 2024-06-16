@@ -1,27 +1,38 @@
-use std::{path::{Path, PathBuf}, vec};
+use std::{
+    path::{Path, PathBuf},
+    vec,
+};
 
 use config::Config;
-use ctx::Context;
 use regex::Regex;
 
-use crate::{ais::{assistant::{create_assitant, delete_assistant}, new_oa_client, AsstId, OaClient}, tutoria::{self, error::Result}, utils::files::{file_to_string, load_from_toml}};
+use crate::{
+    ais::{
+        assistant::{create_assitant, delete_assistant},
+        new_oa_client, AsstId, OaClient,
+    },
+    tutoria::{self, error::Result},
+    utils::files::{file_to_string, load_from_toml}, TutorIAContext,
+};
 
-pub mod error;
 pub mod config;
-pub mod ctx;
+pub mod error;
 
 const TUTORIA_TOML: &str = "tutorIA.toml";
 
-#[derive(Debug)]
 pub struct TutorIA {
-    pub dir: PathBuf,
-    pub oac: OaClient,
+    pub(crate) dir: PathBuf,
+    pub(crate) oac: OaClient,
     pub assistant_id: AsstId,
-    pub config: Config
+    pub(crate) config: Config,
 }
 
 impl TutorIA {
-    pub async fn init_from_dir(dir: impl AsRef<Path>, assistant_name: String, ctx: Context) -> Result<Self> {
+    pub async fn init_from_dir(
+        dir: impl AsRef<Path>,
+        assistant_name: String,
+        ctx: TutorIAContext,
+    ) -> Result<Self> {
         let dir: &Path = dir.as_ref();
 
         let oac = new_oa_client()?;
@@ -38,16 +49,14 @@ impl TutorIA {
             dir: dir.to_path_buf(),
             oac,
             config,
-            assistant_id
+            assistant_id,
         };
 
         Ok(tutoria)
     }
 
-    pub fn get_instructions_with_ctx(mut instructions: String, ctx: Context) -> Result<String> {
-        let params = vec![
-            ("\\{materia\\}", ctx.materia)
-        ];
+    pub fn get_instructions_with_ctx(mut instructions: String, ctx: TutorIAContext) -> Result<String> {
+        let params = vec![("\\{materia\\}", ctx.materia)];
 
         for (param, val) in params {
             let re = Regex::new(param).unwrap();
