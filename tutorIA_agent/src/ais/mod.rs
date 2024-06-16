@@ -3,12 +3,18 @@ use async_openai::{config::OpenAIConfig, types::{CreateAssistantRequestArgs, Cre
 use derive_more::From;
 
 pub mod error;
-pub mod assistand;
+pub mod assistant;
 
 pub type OaClient = Client<OpenAIConfig>;
 
-#[derive(From)]
+#[derive(From, Debug)]
 pub struct AsstId(String);
+
+impl AsstId {
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
 
 
 pub fn new_oa_client() -> Result<OaClient> {

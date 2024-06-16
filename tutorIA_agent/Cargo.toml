@@ -15,3 +15,4 @@ serde_json = "1.0.117"
 toml = "0.8.14"
 # -- Others
 derive_more = { version = "0.99.17", features = ["from"]}
+regex = "1.10.5"
