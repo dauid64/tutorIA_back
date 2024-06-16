@@ -1,5 +1,5 @@
 [package]
-name = "tutorIA_agent"
+name = "tutoria_agent"
 version = "0.1.0"
 edition = "2021"
 description = "Agente IA utilizado pela API do TutorIA"

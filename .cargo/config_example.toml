@@ -1,6 +1,6 @@
 [env]
 
-RUST_LOG="tutorIA_API=debug"
+RUST_LOG="tutoria_api=debug"
 
 SERVICE_PORT="3000"
 

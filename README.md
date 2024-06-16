@@ -23,7 +23,7 @@ docker-compose up
 Agora vamos rodar a aplicação com o cargo watch:
 
 ```bash
-cargo watch -q -c -w tutorIA_API/src -w tutorIA_agent/src -w .cargo/ -x "run"
+cargo watch -q -c -w tutoria_api/src -w tutoria_agent/src -w .cargo/ -x "run"
 ```
 
 Sem cargo watch:

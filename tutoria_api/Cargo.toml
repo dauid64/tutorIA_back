@@ -1,12 +1,12 @@
 [package]
-name = "tutorIA_API"
+name = "tutoria_api"
 version = "0.1.0"
 edition = "2021"
 description = "API REST para a consumação do tutorIA front"
 
 [dependencies]
 # -- TutorIA Agent
-tutorIA_agent = { path = "../tutorIA_agent"}
+tutoria_agent = { path = "../tutoria_agent"}
 # -- Async
 tokio = { version = "1.37.0", features = ["full"]}
 async-trait = "0.1.80"

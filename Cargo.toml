@@ -4,6 +4,6 @@
 resolver = "2"
 
 members = [
-    "tutorIA_API",
-    "tutorIA_agent"
+    "tutoria_api",
+    "tutoria_agent"
 ]
