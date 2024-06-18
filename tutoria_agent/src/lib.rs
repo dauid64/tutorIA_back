@@ -27,6 +27,18 @@ pub async fn delete_tutoria_assistant(tutoria: TutorIA) -> Result<()> {
     Ok(())
 }
 
+pub async fn create_tutoria_thread(tutoria: TutorIA) -> Result<String> {
+    let thread = tutoria.create_thread().await?;
+
+    Ok(thread.id)
+}
+
+pub async fn send_tutoria_message(tutoria: TutorIA, thread_id: &str, content: String) -> Result<String> {
+    let response_msg = tutoria.send_message(thread_id, content).await?;
+
+    Ok(response_msg)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

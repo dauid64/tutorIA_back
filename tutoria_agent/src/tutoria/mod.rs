@@ -3,12 +3,13 @@ use std::{
     vec,
 };
 
+use async_openai::types::{CreateMessageRequestArgs, MessageRole, ThreadObject};
 use config::Config;
 use regex::Regex;
 
 use crate::{
     ais::{
-        assistant::{create_assitant, delete_assistant},
+        assistant::{self, create_assitant, delete_assistant},
         new_oa_client, AsstId, OaClient,
     },
     tutoria::{self, error::Result},
@@ -55,7 +56,7 @@ impl TutorIA {
         Ok(tutoria)
     }
 
-    pub fn get_instructions_with_ctx(mut instructions: String, ctx: TutorIAContext) -> Result<String> {
+    fn get_instructions_with_ctx(mut instructions: String, ctx: TutorIAContext) -> Result<String> {
         let params = vec![("\\{materia\\}", ctx.materia)];
 
         for (param, val) in params {
@@ -72,5 +73,17 @@ impl TutorIA {
         drop(self);
 
         Ok(())
+    }
+
+    pub async fn create_thread(&self) -> Result<ThreadObject> {
+        let thread = assistant::create_thread(&self.oac).await?;
+
+        Ok(thread)
+    }
+
+    pub async fn send_message(&self, thread_id: &str, content: String) -> Result<String> {
+        let response_msg = assistant::send_message(self, thread_id, content).await?;
+
+        Ok(response_msg)
     }
 }
