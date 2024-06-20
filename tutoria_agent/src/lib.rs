@@ -5,18 +5,16 @@ use crate::error::Result;
 
 mod ais;
 mod config;
-mod error;
+pub mod error;
 mod tutoria;
 mod utils;
-
-const DIR: &str = "../tutorIA";
 
 pub struct TutorIAContext {
     pub materia: String
 }
 
 pub async fn create_tutoria_assistant(assistant_name: String, ctx: TutorIAContext) -> Result<TutorIA> {
-    let tutoria = TutorIA::init_from_dir(DIR, assistant_name, ctx).await?;
+    let tutoria = TutorIA::init_from_dir(assistant_name, ctx).await?;
 
     Ok(tutoria)
 }

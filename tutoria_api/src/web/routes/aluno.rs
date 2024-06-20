@@ -12,7 +12,7 @@ pub fn routes(mm: ModelManager) -> Router {
 }
 
 async fn api_create_aluno_handler(
-    State(mm): State<ModelManager>,
+    mm: State<ModelManager>,
     Json(payload): Json<AlunoForCreate>,
 ) -> Result<Json<Value>> {
     AlunoBmc::validate(&payload).await?;

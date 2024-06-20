@@ -5,3 +5,4 @@ pub mod professor;
 pub mod materia;
 pub mod auth;
 pub mod jwt;
+pub mod tutor;

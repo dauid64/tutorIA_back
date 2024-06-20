@@ -1,6 +1,7 @@
-use crate::model::{Error, Result};
+use crate::model::{base, Error, Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use sqlb::Fields;
 use sqlx::FromRow;
 use uuid::Uuid;
 
@@ -208,5 +209,39 @@ impl MateriaBmc {
         .map_err(|err| Error::Sqlx(err.to_string()))?;
 
         Ok(materias)
+    }
+
+    pub async fn find_by_id(mm: &ModelManager, materia_id: Uuid) -> Result<Materia> {
+        let db = mm.db();
+
+        let materia = sqlx::query_as!(
+            Materia,
+            r#"
+                SELECT
+                    materia.created_at as created_at,
+                    materia.id as id,
+                    materia.nome as nome,
+                    materia.descricao as descricao,
+                    materia.conteudos as conteudos,
+                    professor.nome as professor_nome,
+                    COUNT(aluno) as qtd_alunos
+                FROM materia
+                INNER JOIN professor ON materia.professor_id = professor.id
+                LEFT JOIN aluno_materia ON materia.id = aluno_materia.materia_id
+                LEFT JOIN aluno ON aluno_materia.aluno_id = aluno.id
+                WHERE materia.id = $1
+                GROUP BY professor.nome, materia.id
+            "#,
+            materia_id
+        )
+        .fetch_optional(db)
+        .await
+        .map_err(|err| Error::Sqlx(err.to_string()))?;
+
+        if materia.is_none() {
+            return Err(Error::EntityNotFound { entity: "materia", id: materia_id })
+        }
+
+        Ok(materia.unwrap())
     }
 }

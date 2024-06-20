@@ -3,8 +3,9 @@ use std::{
     vec,
 };
 
-use async_openai::types::{CreateMessageRequestArgs, MessageRole, ThreadObject};
+use async_openai::types::ThreadObject;
 use config::Config;
+use crate::config::config as config_env;
 use regex::Regex;
 
 use crate::{
@@ -12,7 +13,7 @@ use crate::{
         assistant::{self, create_assitant, delete_assistant},
         new_oa_client, AsstId, OaClient,
     },
-    tutoria::{self, error::Result},
+    tutoria::error::Result,
     utils::files::{file_to_string, load_from_toml}, TutorIAContext,
 };
 
@@ -30,11 +31,10 @@ pub struct TutorIA {
 
 impl TutorIA {
     pub async fn init_from_dir(
-        dir: impl AsRef<Path>,
         assistant_name: String,
         ctx: TutorIAContext,
     ) -> Result<Self> {
-        let dir: &Path = dir.as_ref();
+        let dir: &Path = &config_env().dir.as_ref();
 
         let oac = new_oa_client()?;
 

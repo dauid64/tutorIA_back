@@ -25,7 +25,10 @@ pub enum Error {
     Router(&'static str),
     #[from(ignore)]
     Unauthorized(&'static str),
-    InvalidUuid(String)
+    #[from(ignore)]
+    InvalidUuid(String),
+    #[from(ignore)]
+    TutorIAAgentError(String)
 }
 
 impl core::fmt::Display for Error {
@@ -85,6 +88,6 @@ impl Error {
 pub enum ClientError {
     NO_AUTH,
     SERVICE_ERROR,
-    ENTITY_NOT_FOUND { entity: &'static str, id: i64},
+    ENTITY_NOT_FOUND { entity: &'static str, id: Uuid},
     INVALID_DATA(&'static str)
 }

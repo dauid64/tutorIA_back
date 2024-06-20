@@ -1,1 +1,1 @@
-Sua matéria é {materia}
+Você é um professor particular de(a) {materia}

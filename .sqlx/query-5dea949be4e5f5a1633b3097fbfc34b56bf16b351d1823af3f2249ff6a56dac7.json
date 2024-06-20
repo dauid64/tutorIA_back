@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                SELECT\n                    materia.created_at as created_at,\n                    materia.id as id,\n                    materia.nome as nome,\n                    materia.descricao as descricao,\n                    materia.conteudos as conteudos,\n                    professor.nome as professor_nome,\n                    COUNT(aluno) as qtd_alunos\n                FROM materia\n                INNER JOIN professor ON materia.professor_id = professor.id\n                LEFT JOIN aluno_materia ON materia.id = aluno_materia.materia_id\n                LEFT JOIN aluno ON aluno_materia.aluno_id = aluno.id\n                WHERE materia.id = $1\n                GROUP BY professor.nome, materia.id\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "nome",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "descricao",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "conteudos",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "professor_nome",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "qtd_alunos",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "5dea949be4e5f5a1633b3097fbfc34b56bf16b351d1823af3f2249ff6a56dac7"
+}

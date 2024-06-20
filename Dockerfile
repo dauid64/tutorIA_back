@@ -39,6 +39,7 @@ COPY --from=builder /usr/src/app/target/release/tutoria_api /usr/src/app/tutoria
 
 COPY migrations /usr/app/migrations
 COPY ./static  /usr/app/static
+COPY ./tutorIA /usr/app/tutorIA
 
 # Set permissions to execute
 RUN chmod +x /usr/src/app/tutoria_api

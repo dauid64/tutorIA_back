@@ -40,6 +40,8 @@ async fn main() -> Result<()> {
     let routes_professor = routes::professor::router(mm.clone());
     let routes_materia =
         routes::materia::router(mm.clone()).route_layer(middleware::from_fn(mw_ctx_require));
+    let routes_tutor =
+        routes::tutor::routes(mm.clone()).route_layer(middleware::from_fn(mw_ctx_require));
     let routes_authenticate = routes::auth::routes(mm.clone());
     let routes_jwt = routes::jwt::routes().route_layer(middleware::from_fn(mw_ctx_require));
 
@@ -50,6 +52,7 @@ async fn main() -> Result<()> {
         .merge(routes_usuario)
         .merge(routes_professor)
         .merge(routes_materia)
+        .merge(routes_tutor)
         .merge(routes_authenticate)
         .merge(routes_jwt)
         .layer(

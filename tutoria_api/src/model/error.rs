@@ -4,13 +4,14 @@ use super::store;
 use derive_more::From;
 use serde::Serialize;
 use serde_with::serde_as;
+use uuid::Uuid;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
 #[serde_as]
 #[derive(Debug, From, Serialize, Clone)]
 pub enum Error {
-    EntityNotFound { entity: &'static str, id: i64},
+    EntityNotFound { entity: &'static str, id: Uuid},
     Store(store::Error),
     #[from(ignore)]
     Sqlx(String),
