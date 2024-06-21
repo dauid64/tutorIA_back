@@ -1,3 +1,4 @@
+use ais::{assistant::get_assistant, new_oa_client, AsstId};
 use config::config;
 use tutoria::TutorIA;
 
@@ -35,6 +36,19 @@ pub async fn send_tutoria_message(tutoria: TutorIA, thread_id: &str, content: St
     let response_msg = tutoria.send_message(thread_id, content).await?;
 
     Ok(response_msg)
+}
+
+pub async fn get_tutoria(assistant_id: &String) -> Result<TutorIA> {
+    let client = new_oa_client()?;
+    let assistant = get_assistant(&client, &assistant_id).await?;
+    
+    let tutoria = TutorIA::new(
+        AsstId::from(assistant_id.to_string()),
+        client,
+        assistant.name.unwrap()
+    ).await?;
+
+    Ok(tutoria)
 }
 
 #[cfg(test)]

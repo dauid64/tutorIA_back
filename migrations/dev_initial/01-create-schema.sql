@@ -70,7 +70,7 @@ CREATE TABLE "chat" (
     aluno_id uuid NOT NULL,
     tutor_id uuid NOT NULL,
 
-    thread_id varchar(256) NOT NULL,
+    thread_id varchar(256) NOT NULL UNIQUE,
 
     FOREIGN KEY (aluno_id) 
         REFERENCES aluno(id)

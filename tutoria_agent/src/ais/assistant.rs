@@ -1,4 +1,4 @@
-use async_openai::types::{CreateAssistantRequestArgs, CreateMessageRequestArgs, CreateRunRequestArgs, CreateThreadRequestArgs, MessageContent, MessageRole, RunStatus, ThreadObject};
+use async_openai::types::{AssistantObject, CreateAssistantRequestArgs, CreateMessageRequestArgs, CreateRunRequestArgs, CreateThreadRequestArgs, MessageContent, MessageRole, RunStatus, ThreadObject};
 use super::error::{ Result, Error };
 use crate::tutoria::{config::Config, TutorIA};
 
@@ -16,6 +16,12 @@ pub async fn create_assitant(client: &OaClient, config: Config, instructions: St
     let assistant_id = AsstId::from(assistant.id);
 
     Ok(assistant_id)
+}
+
+pub async fn get_assistant(client: &OaClient, assistant_id: &String) -> Result<AssistantObject> {
+    let assistant = client.assistants().retrieve(assistant_id.as_str()).await?;
+
+    Ok(assistant)
 }
 
 pub async fn create_thread(client: &OaClient) -> Result<ThreadObject> {

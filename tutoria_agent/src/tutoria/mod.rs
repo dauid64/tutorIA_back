@@ -3,9 +3,9 @@ use std::{
     vec,
 };
 
-use async_openai::types::ThreadObject;
-use config::Config;
 use crate::config::config as config_env;
+use async_openai::{config::OpenAIConfig, types::ThreadObject, Client};
+use config::Config;
 use regex::Regex;
 
 use crate::{
@@ -14,7 +14,8 @@ use crate::{
         new_oa_client, AsstId, OaClient,
     },
     tutoria::error::Result,
-    utils::files::{file_to_string, load_from_toml}, TutorIAContext,
+    utils::files::{file_to_string, load_from_toml},
+    TutorIAContext,
 };
 
 pub mod config;
@@ -30,10 +31,26 @@ pub struct TutorIA {
 }
 
 impl TutorIA {
-    pub async fn init_from_dir(
+    pub async fn new(
+        assistant_id: AsstId,
+        oac: Client<OpenAIConfig>,
         assistant_name: String,
-        ctx: TutorIAContext,
-    ) -> Result<Self> {
+    ) -> Result<TutorIA> {
+        let dir: &Path = &config_env().dir.as_ref();
+
+        let mut config: Config = load_from_toml(dir.join(TUTORIA_TOML))?;
+
+        config.name = assistant_name;
+
+        Ok(TutorIA {
+            dir: dir.to_path_buf(),
+            oac,
+            assistant_id,
+            config,
+        })
+    }
+
+    pub async fn init_from_dir(assistant_name: String, ctx: TutorIAContext) -> Result<Self> {
         let dir: &Path = &config_env().dir.as_ref();
 
         let oac = new_oa_client()?;

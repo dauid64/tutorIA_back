@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use sqlb::Fields;
+use sqlx::prelude::FromRow;
 use uuid::Uuid;
 use crate::model::Result;
 
@@ -10,6 +11,14 @@ use super::{base::{self, DbBmc}, Error, ModelManager};
 pub struct TutorForCreate {
     pub nome: String,
     #[serde(skip)]
+    pub assistant_id: String,
+    pub materia_id: Uuid,
+}
+
+#[derive(Fields, Deserialize, FromRow)]
+pub struct Tutor {
+    pub id: Uuid,
+    pub nome: String,
     pub assistant_id: String,
     pub materia_id: Uuid,
 }
@@ -47,5 +56,15 @@ impl TutorBmc {
 
     pub async fn create(mm: &ModelManager, tutor_c: TutorForCreate) -> Result<Uuid> {
         base::create::<Self, _>(mm, tutor_c).await
+    }
+
+    pub async fn find_by_id(mm: &ModelManager, id: Uuid) -> Result<Tutor> {
+        let tutor = base::find_by_id::<Self, Tutor>(mm, id).await?;
+
+        if tutor.is_none() {
+            return Err(Error::EntityNotFound { entity: "tutor", id: id })
+        }
+
+        Ok(tutor.unwrap())
     }
 }

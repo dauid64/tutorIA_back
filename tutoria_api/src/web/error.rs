@@ -17,6 +17,7 @@ pub enum Error {
     Utils(crypt::Error),
     CtxExt(middlewares::auth::CtxExtError),
     LoginFailUsernameNotFound,
+    ParamsNotFound,
     #[from(ignore)]
     LoginFailUserHasNoPwd{ user_id: Uuid },
     #[from(ignore)]
