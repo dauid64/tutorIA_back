@@ -20,8 +20,8 @@ pub struct MensagemForCreate {
 #[derive(FromRow, Serialize)]
 pub struct Mensagem {
     pub created_at: Option<DateTime<Utc>>,
-    conteudo: String,
-    tipo: String,
+    pub conteudo: String,
+    pub tipo: String,
 }
 
 pub struct MensagemBmc;

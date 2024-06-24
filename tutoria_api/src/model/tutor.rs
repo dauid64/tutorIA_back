@@ -10,8 +10,6 @@ use super::{base::{self, DbBmc}, Error, ModelManager};
 #[derive(Fields, Deserialize)]
 pub struct TutorForCreate {
     pub nome: String,
-    #[serde(skip)]
-    pub assistant_id: String,
     pub materia_id: Uuid,
 }
 
@@ -19,7 +17,6 @@ pub struct TutorForCreate {
 pub struct Tutor {
     pub id: Uuid,
     pub nome: String,
-    pub assistant_id: String,
     pub materia_id: Uuid,
 }
 
@@ -35,10 +32,6 @@ impl TutorForCreate {
 
         if nome.is_empty() {
             return Err(Error::ValidateFail("Nome não pode estar branco"));
-        }
-
-        if self.assistant_id.is_empty() {
-            return Err(Error::ValidateFail("assistant_id não pode estar branco"));
         }
 
         if self.materia_id.is_nil() {

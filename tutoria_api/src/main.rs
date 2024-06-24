@@ -6,6 +6,7 @@ use crate::web::routes;
 use axum::{middleware, Router};
 use tracing::info;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use tutoria_agent::ais::new_oa_client;
 use web::middlewares::auth::mw_ctx_require;
 use web::middlewares::cors::mw_cors_accept;
 use web::middlewares::response_map::mw_response_map;
@@ -33,6 +34,7 @@ async fn main() -> Result<()> {
     _dev_utils::init_dev().await;
 
     let mm = ModelManager::new().await?;
+    let oac = new_oa_client()?;
 
     let routes_alunos = routes::aluno::routes(mm.clone())
         .route_layer(middleware::from_fn(mw_ctx_require));
@@ -41,7 +43,7 @@ async fn main() -> Result<()> {
     let routes_materia =
         routes::materia::router(mm.clone()).route_layer(middleware::from_fn(mw_ctx_require));
     let routes_tutor =
-        routes::tutor::routes(mm.clone()).route_layer(middleware::from_fn(mw_ctx_require));
+        routes::tutor::routes(mm.clone(), oac.clone()).route_layer(middleware::from_fn(mw_ctx_require));
     let routes_authenticate = routes::auth::routes(mm.clone());
     let routes_jwt = routes::jwt::routes().route_layer(middleware::from_fn(mw_ctx_require));
 

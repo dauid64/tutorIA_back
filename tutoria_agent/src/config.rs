@@ -14,7 +14,7 @@ pub fn config() -> &'static Config {
 
 pub struct Config {
     pub openai_api_key: String,
-    pub dir: String
+    pub openai_model: String
 }
 
 impl Config {
@@ -22,7 +22,7 @@ impl Config {
         Ok(
             Config {
                 openai_api_key: get_env("OPENAI_API_KEY")?,
-                dir: get_env("DIR_TUTORIA_AGENT")?,
+                openai_model: get_env("OPENAI_MODEL")?,
             }
         )
     }

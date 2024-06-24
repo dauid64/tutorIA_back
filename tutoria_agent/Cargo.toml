@@ -16,3 +16,4 @@ toml = "0.8.14"
 # -- Others
 derive_more = { version = "0.99.17", features = ["from", "deref", "display"]}
 regex = "1.10.5"
+futures = "0.3.30"

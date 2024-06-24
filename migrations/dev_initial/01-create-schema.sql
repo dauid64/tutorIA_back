@@ -57,7 +57,6 @@ CREATE TABLE "tutor" (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     nome varchar(128) NOT NULL,
     materia_id uuid NOT NULL,
-    assistant_id varchar(256) NOT NULL,
 
     FOREIGN KEY (materia_id)
         REFERENCES materia(id)
@@ -69,8 +68,6 @@ CREATE TABLE "chat" (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     aluno_id uuid NOT NULL,
     tutor_id uuid NOT NULL,
-
-    thread_id varchar(256) NOT NULL UNIQUE,
 
     FOREIGN KEY (aluno_id) 
         REFERENCES aluno(id)

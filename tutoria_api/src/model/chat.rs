@@ -13,7 +13,6 @@ use super::{
 pub struct ChatForCreate {
     pub aluno_id: Uuid,
     pub tutor_id: Uuid,
-    pub thread_id: String,
 }
 
 #[derive(Serialize, FromRow, Fields)]
@@ -21,7 +20,6 @@ pub struct Chat {
     pub id: Uuid,
     pub aluno_id: Uuid,
     pub tutor_id: Uuid,
-    pub thread_id: String,
 }
 
 pub struct ChatBmc;
@@ -48,8 +46,7 @@ impl ChatBmc {
                 SELECT
                     chat.id as id,
                     chat.aluno_id as aluno_id,
-                    chat.tutor_id as tutor_id,
-                    chat.thread_id as thread_id
+                    chat.tutor_id as tutor_id
                 FROM chat
                 WHERE chat.aluno_id = $1 AND chat.tutor_id = $2
             "#,

@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                SELECT\n                    chat.id as id,\n                    chat.aluno_id as aluno_id,\n                    chat.tutor_id as tutor_id\n                FROM chat\n                WHERE chat.aluno_id = $1 AND chat.tutor_id = $2\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "aluno_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "tutor_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "97f7b7e14489d253a60beb9d74ee33dcddb93fc1b5fb6d78365a5d13b0088052"
+}

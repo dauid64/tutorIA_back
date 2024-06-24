@@ -1,5 +1,6 @@
 use crate::model;
 use derive_more::From;
+use tutoria_agent::ais;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -10,6 +11,7 @@ pub enum Error {
     #[from(ignore)]
     ConfigWrongFormat(&'static str),
     Model(model::Error),
+    OaError(ais::error::Error)
 }
 
 // region:    --- Error Boilerplate
