@@ -18,6 +18,7 @@ pub struct ChatForCreate {
 
 #[derive(Serialize, FromRow, Fields)]
 pub struct Chat {
+    pub id: Uuid,
     pub aluno_id: Uuid,
     pub tutor_id: Uuid,
     pub thread_id: String,
@@ -45,6 +46,7 @@ impl ChatBmc {
             Chat,
             r#"
                 SELECT
+                    chat.id as id,
                     chat.aluno_id as aluno_id,
                     chat.tutor_id as tutor_id,
                     chat.thread_id as thread_id
@@ -65,7 +67,10 @@ impl ChatBmc {
         let chat = base::find_by_id::<Self, Chat>(mm, id).await?;
 
         if chat.is_none() {
-            return Err(Error::EntityNotFound { entity: "chat", id: id })
+            return Err(Error::EntityNotFound {
+                entity: "chat",
+                id: id,
+            });
         }
 
         Ok(chat.unwrap())

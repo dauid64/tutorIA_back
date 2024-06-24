@@ -1,20 +1,14 @@
 use crate::{ais::error::Result, config, tutoria::config::Config};
 use async_openai::{config::OpenAIConfig, types::{CreateAssistantRequestArgs, CreateThreadRequestArgs, ThreadObject}, Client};
-use derive_more::From;
+use derive_more::{ From, Deref, Display };
 
 pub mod error;
 pub mod assistant;
 
 pub type OaClient = Client<OpenAIConfig>;
 
-#[derive(From, Debug)]
+#[derive(From, Debug, Deref, Display)]
 pub struct AsstId(String);
-
-impl AsstId {
-    pub fn as_str(&self) -> &str {
-        &self.0
-    }
-}
 
 
 pub fn new_oa_client() -> Result<OaClient> {

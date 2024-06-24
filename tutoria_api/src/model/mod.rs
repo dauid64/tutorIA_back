@@ -11,6 +11,7 @@ pub mod professor;
 pub mod materia;
 pub mod tutor;
 pub mod chat;
+pub mod mensagem;
 
 #[derive(Clone)]
 pub struct ModelManager {

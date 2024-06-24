@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                SELECT \n                    mensagem.created_at as created_at,\n                    mensagem.conteudo as conteudo,\n                    mensagem.tipo as tipo\n                FROM mensagem\n                WHERE mensagem.chat_id = $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "conteudo",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "tipo",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "9ce085108a1d3b11bd3a3a88e528052267c5fd71c1851dd40bf138569579d0c7"
+}

@@ -26,13 +26,13 @@ pub async fn delete_tutoria_assistant(tutoria: TutorIA) -> Result<()> {
     Ok(())
 }
 
-pub async fn create_tutoria_thread(tutoria: TutorIA) -> Result<String> {
+pub async fn create_tutoria_thread(tutoria: &TutorIA) -> Result<String> {
     let thread = tutoria.create_thread().await?;
 
     Ok(thread.id)
 }
 
-pub async fn send_tutoria_message(tutoria: TutorIA, thread_id: &str, content: String) -> Result<String> {
+pub async fn send_tutoria_message(tutoria: &TutorIA, thread_id: &str, content: String) -> Result<String> {
     let response_msg = tutoria.send_message(thread_id, content).await?;
 
     Ok(response_msg)
@@ -62,5 +62,18 @@ mod tests {
         delete_tutoria_assistant(tutoria).await?;
 
         Ok(())
+    }
+
+    #[tokio::test]
+    async fn send_message_tutoria_ok() -> Result<()> {
+        let tutoria = create_tutoria_assistant("teste".to_string(), TutorIAContext { materia: "matematica".to_string()}).await?;
+
+        let thread_id = create_tutoria_thread(&tutoria).await?;
+
+        let response_msg = send_tutoria_message(&tutoria, &thread_id, "Qual sua matéria?".to_string()).await?;
+
+        println!("{:?}", response_msg);
+
+        Ok(())    
     }
 }

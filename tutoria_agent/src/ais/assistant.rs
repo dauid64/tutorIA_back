@@ -41,7 +41,7 @@ pub async fn delete_assistant(tutoria: &TutorIA) -> Result<()> {
 
 pub async fn send_message(tutoria: &TutorIA, thread_id: &str, content: String) -> Result<String> {
     let query = [("limit", "1")];
-
+    
     let message = CreateMessageRequestArgs::default()
             .role(MessageRole::User)
             .content(content)
@@ -54,7 +54,8 @@ pub async fn send_message(tutoria: &TutorIA, thread_id: &str, content: String) -
         .await?;
     
     let run_request = CreateRunRequestArgs::default()
-        .assistant_id(tutoria.assistant_id.as_str())
+        .assistant_id(tutoria.assistant_id.to_string())
+        .parallel_tool_calls(false)
         .build()?;
 
     let run = tutoria.oac
