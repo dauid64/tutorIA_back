@@ -17,7 +17,7 @@ pub struct MensagemForCreate {
     pub chat_id: Uuid,
 }
 
-#[derive(FromRow, Serialize)]
+#[derive(FromRow, Serialize, Debug)]
 pub struct Mensagem {
     pub created_at: Option<DateTime<Utc>>,
     pub conteudo: String,
@@ -47,6 +47,7 @@ impl MensagemBmc {
                     mensagem.tipo as tipo
                 FROM mensagem
                 WHERE mensagem.chat_id = $1
+                ORDER BY mensagem.created_at
             "#,
             chat_id
         )

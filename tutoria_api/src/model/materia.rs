@@ -1,7 +1,6 @@
-use crate::model::{base, Error, Result};
+use crate::model::{ Error, Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlb::Fields;
 use sqlx::FromRow;
 use uuid::Uuid;
 

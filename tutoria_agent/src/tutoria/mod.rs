@@ -1,6 +1,5 @@
 
-use async_openai::types::{ChatCompletionRequestMessage, ChatCompletionRequestSystemMessage, ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs};
-use error::{ Error, Result };
+use error::Result;
 
 use crate::{ais::message::Message, config, TutorIAContext};
 
@@ -13,7 +12,7 @@ pub struct TutorIA {
 }
 
 impl TutorIA {
-    pub async fn new(messages: Vec<Message>) -> TutorIA {
+    pub fn new(messages: Vec<Message>) -> TutorIA {
         TutorIA {
             model: config().openai_model.clone(),
             messages: messages

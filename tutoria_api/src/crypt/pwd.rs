@@ -1,5 +1,3 @@
-use tracing::debug;
-
 use crate::config::config;
 use super::error::{Result, Error};
 

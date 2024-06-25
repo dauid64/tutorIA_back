@@ -18,6 +18,4 @@ WEB_FOLDER="static/"
 
 OPENAI_API_KEY="CHANGE-ME"
 
-TUTORIA_MODEL="gpt-3.5-turbo"
-
-DIR_TUTORIA_AGENT="tutorIA"
+OPENAI_MODEL="gpt-3.5-turbo"

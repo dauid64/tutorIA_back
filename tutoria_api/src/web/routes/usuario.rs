@@ -1,7 +1,6 @@
 use axum::extract::State;
 use axum::routing::post;
 use axum::{Json, Router};
-use serde::Deserialize;
 use serde_json::{json, Value};
 use tracing::debug;
 
@@ -9,12 +8,6 @@ use crate::crypt;
 use crate::model::usuario::{UsuarioBmc, UsuarioForCreate};
 use crate::model::ModelManager;
 use crate::web::error::Result;
-
-#[derive(Debug, Deserialize)]
-struct LoginPayload {
-    username: String,
-    pwd: String,
-}
 
 pub fn routes(mm: ModelManager) -> Router {
     Router::new()

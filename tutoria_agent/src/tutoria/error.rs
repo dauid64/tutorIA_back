@@ -1,5 +1,6 @@
-use crate::{ais, utils};
 use derive_more::From;
+
+use crate::ais;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -7,7 +8,6 @@ pub type Result<T> = core::result::Result<T, Error>;
 pub enum Error {
     TutorIAError(String),
     AIError(ais::error::Error),
-    UtilsError(utils::error::Error),
 }
 
 // region:    --- Error Boilerplate

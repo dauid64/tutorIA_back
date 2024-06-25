@@ -10,7 +10,6 @@ pub enum Error {
     #[from(ignore)]
     ErrorToDecodeJWT(String),
     KeyFailHmac,
-    SecretKeyWrongFormat,
     PwdNotMacthing
 }
 

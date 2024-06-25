@@ -1,4 +1,3 @@
-use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use sqlb::Fields;
 use sqlx::prelude::FromRow;

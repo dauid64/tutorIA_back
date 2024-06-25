@@ -22,8 +22,6 @@ pub struct ProfessorForCreate {
     pub usuario_id: Uuid,
 }
 
-pub trait ProfessorBy: HasFields + for<'r> FromRow<'r, PgRow> + Unpin + Send {}
-
 impl ProfessorForCreate {
     fn validate(&self) -> Result<()> {
         let nome = self.nome.trim();

@@ -34,7 +34,7 @@ pub fn routes(mm: ModelManager, oac: OaClient) -> Router {
         .route("/api/tutor/:tutor_id", get(api_get_chat_handler))
         .route(
             "/api/tutor/mensagem/:chat_id",
-            post(api_post_mensagem_handler),
+            post(api_create_mensagem_handler),
         )
         .with_state(tutoria_state)
 }
@@ -49,7 +49,7 @@ async fn api_create_tutor_handler(
 
     let tutor_c = TutorForCreate {
         nome: payload.nome,
-        materia_id: payload.materia_id,
+        materia_id: materia.id,
     };
 
     TutorBmc::validate(&tutor_c).await?;
@@ -88,7 +88,6 @@ async fn api_get_chat_handler(
 
     if chat_opt.is_some() {
         let chat = chat_opt.unwrap();
-
         let mut mensagens = MensagemBmc::find_by_chat_id(&mm, chat.id).await?;
 
         let body = Json(json!({
@@ -105,7 +104,6 @@ async fn api_get_chat_handler(
         materia: "calculo 2".to_string(),
     };
 
-
     let chat_c = ChatForCreate {
         aluno_id: aluno.id,
         tutor_id: tutor.id,
@@ -120,7 +118,7 @@ async fn api_get_chat_handler(
     let message_c = MensagemForCreate {
         tipo: initial_message.role,
         conteudo: initial_message.content,
-        chat_id
+        chat_id,
     };
 
     MensagemBmc::create(&mm, message_c).await?;
@@ -135,7 +133,7 @@ async fn api_get_chat_handler(
     Ok(body)
 }
 
-async fn api_post_mensagem_handler(
+async fn api_create_mensagem_handler(
     State(tutoria_state): State<TutorIAState>,
     Path(params): Path<HashMap<String, String>>,
     Json(payload): Json<MsgCreatePayload>,
@@ -145,10 +143,14 @@ async fn api_post_mensagem_handler(
 
     let chat_id = Uuid::parse_str(params.get("chat_id").ok_or(Error::ParamsNotFound)?)
         .map_err(|err| Error::InvalidUuid(err.to_string()))?;
-
     let chat = ChatBmc::find_by_id(&mm, chat_id).await?;
 
-    let tutor = TutorBmc::find_by_id(&mm, chat.tutor_id).await?;
+    let mensagem_c = MensagemForCreate {
+        conteudo: payload.conteudo,
+        tipo: "user".to_string(),
+        chat_id: chat.id,
+    };
+    MensagemBmc::create(&mm, mensagem_c).await?;
 
     let mensagens = MensagemBmc::find_by_chat_id(&mm, chat.id).await?;
 
@@ -160,15 +162,7 @@ async fn api_post_mensagem_handler(
         })
         .collect();
 
-    let tutoria = TutorIA::new(messages_formatted).await;
-
-    let mensagem_c = MensagemForCreate {
-        conteudo: payload.conteudo.clone(),
-        tipo: "user".to_string(),
-        chat_id: chat.id,
-    };
-
-    MensagemBmc::create(&mm, mensagem_c).await?;
+    let tutoria = TutorIA::new(messages_formatted);
 
     let tutoria = send_tutoria_message(oac, tutoria)
         .await
@@ -181,12 +175,13 @@ async fn api_post_mensagem_handler(
         tipo: "assistant".to_string(),
         chat_id: chat_id,
     };
-
     MensagemBmc::create(&mm, mensagemtutoria_c).await?;
+
+    let mut mensagens = MensagemBmc::find_by_chat_id(&mm, chat.id).await?;
 
     let body = Json(json!({
         "result": {
-            "resposta": tutoria.messages.clone().split_off(1)
+            "resposta": mensagens.split_off(1)
         }
     }));
 
