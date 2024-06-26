@@ -14,6 +14,7 @@ pub fn config() -> &'static Config {
 pub struct Config {
     pub port: String,
     pub db_url: String,
+    pub rc_url: String,
     pub secret_jwt: String,
     pub pwd_key: Vec<u8>,
     pub web_folder: String,
@@ -24,6 +25,7 @@ impl Config {
         Ok(Config {
             port: get_env("SERVICE_PORT")?,
             db_url: get_env("DATABASE_URL")?,
+            rc_url: get_env("REDIS_URL")?,
             secret_jwt: get_env("SECRET_JWT")?,
             pwd_key: get_env_b64u_as_u8s("PWD_KEY")?,
             web_folder: get_env("WEB_FOLDER")?,

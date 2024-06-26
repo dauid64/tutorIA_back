@@ -3,7 +3,9 @@ use sqlb::{Fields, HasFields};
 use sqlx::{postgres::PgRow, prelude::FromRow};
 use uuid::Uuid;
 
-use super::{base::{self, DbBmc}, ModelManager, Result, Error};
+use crate::manager::TutorIAManager;
+
+use super::{base::{self, DbBmc}, Result, Error};
 
 #[derive(Clone, Fields, FromRow, Debug, Serialize)]
 pub struct Usuario {
@@ -71,18 +73,18 @@ impl UsuarioBmc {
         usuario_c.validate()
     }
 
-    pub async fn create(mm: &ModelManager, usuario_c: UsuarioForCreate) -> Result<Uuid> {
-        base::create::<Self, _>(mm, usuario_c).await
+    pub async fn create(tutoria_manager: &TutorIAManager, usuario_c: UsuarioForCreate) -> Result<Uuid> {
+        base::create::<Self, _>(tutoria_manager, usuario_c).await
     }
 
     pub async fn first_by_username<E>(
-        mm: &ModelManager,
+        tutoria_manager: &TutorIAManager,
         username: &str,
     ) -> Result<Option<E>> 
     where
         E: UserBy
     {
-        let db = mm.db();
+        let db = tutoria_manager.db();
 
         let user = sqlb::select()
             .table(Self::TABLE)

@@ -8,7 +8,8 @@ pub enum Error {
     #[from(ignore)]
     FailedToConvertTime(String),
     #[from(ignore)]
-    FailedToCreateFormatTime(String)
+    FailedToCreateFormatTime(String),
+    PDFError(String)
 }
 
 // region:    --- Error Boilerplate

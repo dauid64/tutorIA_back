@@ -1,13 +1,10 @@
-use crate::model::{Error, Result};
+use crate::{manager::TutorIAManager, model::{Error, Result}};
 use serde::Serialize;
 use sqlb::Fields;
 use sqlx::prelude::FromRow;
 use uuid::Uuid;
 
-use super::{
-    base::{self, DbBmc},
-    ModelManager,
-};
+use super::base::{self, DbBmc};
 
 #[derive(Fields)]
 pub struct ChatForCreate {
@@ -29,16 +26,16 @@ impl DbBmc for ChatBmc {
 }
 
 impl ChatBmc {
-    pub async fn create(mm: &ModelManager, chat_c: ChatForCreate) -> Result<Uuid> {
-        base::create::<Self, _>(mm, chat_c).await
+    pub async fn create(tutoria_manager: &TutorIAManager, chat_c: ChatForCreate) -> Result<Uuid> {
+        base::create::<Self, _>(tutoria_manager, chat_c).await
     }
 
     pub async fn find_by_aluno_and_tutor_id(
-        mm: &ModelManager,
+        tutoria_manager: &TutorIAManager,
         aluno_id: Uuid,
         tutor_id: Uuid,
     ) -> Result<Option<Chat>> {
-        let db = mm.db();
+        let db = tutoria_manager.db();
 
         let chat = sqlx::query_as!(
             Chat,
@@ -60,8 +57,8 @@ impl ChatBmc {
         Ok(chat)
     }
 
-    pub async fn find_by_id(mm: &ModelManager, id: Uuid) -> Result<Chat> {
-        let chat = base::find_by_id::<Self, Chat>(mm, id).await?;
+    pub async fn find_by_id(tutoria_manager: &TutorIAManager, id: Uuid) -> Result<Chat> {
+        let chat = base::find_by_id::<Self, Chat>(tutoria_manager, id).await?;
 
         if chat.is_none() {
             return Err(Error::EntityNotFound {

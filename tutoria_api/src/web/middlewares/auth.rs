@@ -6,11 +6,11 @@ use axum_extra::{headers, TypedHeader};
 use serde::Serialize;
 use tracing::debug;
 
+use crate::manager::TutorIAManager;
 use crate::model::usuario::{UsuarioBmc, UsuarioForAuth};
 use crate::{
     crypt::jwt::decode_jwt,
     ctx::Ctx,
-    model::ModelManager,
     web::error::{Error, Result},
 };
 
@@ -23,7 +23,7 @@ pub async fn mw_ctx_require(ctx: Result<Ctx>, req: Request<Body>, next: Next) ->
 }
 
 pub async fn mw_ctx_resolve(
-    mm: State<ModelManager>,
+    tutoria_manager: State<TutorIAManager>,
     authorization: Option<TypedHeader<headers::Authorization<headers::authorization::Bearer>>>,
     mut req: Request<Body>,
     next: Next,
@@ -32,11 +32,11 @@ pub async fn mw_ctx_resolve(
     if let Some(TypedHeader(authorization)) = authorization {
         let token = authorization.token();
 
-        let ctx_ext_result = _ctx_resolve(mm, token).await;
+        let ctx_ext_result = _ctx_resolve(tutoria_manager, token).await;
     
         req.extensions_mut().insert(ctx_ext_result);
     } else {
-        let ctx_ext_result = _ctx_resolve(mm, "").await;
+        let ctx_ext_result = _ctx_resolve(tutoria_manager, "").await;
 
         req.extensions_mut().insert(ctx_ext_result);
     };
@@ -45,7 +45,7 @@ pub async fn mw_ctx_resolve(
 }
 
 async fn _ctx_resolve(
-    mm: State<ModelManager>,
+    tutoria_manager: State<TutorIAManager>,
     token: &str,
 ) -> CtxExtResult {
     if token.is_empty() {
@@ -56,7 +56,7 @@ async fn _ctx_resolve(
         .map_err(|_| CtxExtError::TokenWrongFormat)?
         .claims;
 
-    let user: UsuarioForAuth = UsuarioBmc::first_by_username(&mm, &claim.username)
+    let user: UsuarioForAuth = UsuarioBmc::first_by_username(&tutoria_manager, &claim.username)
         .await
         .map_err(|err| CtxExtError::ModelAccessError(err.to_string()))?
         .ok_or(CtxExtError::UserNotFound)?;

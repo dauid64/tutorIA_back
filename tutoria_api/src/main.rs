@@ -1,19 +1,19 @@
 use crate::config::config;
 use crate::error::Result;
-use crate::model::ModelManager;
+use crate::manager::TutorIAManager;
 use crate::web::middlewares::auth::mw_ctx_resolve;
 use crate::web::routes;
 use axum::{middleware, Router};
+use tower::ServiceBuilder;
 use tracing::info;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
-use tutoria_agent::ais::new_oa_client;
 use web::middlewares::auth::mw_ctx_require;
 use web::middlewares::cors::mw_cors_accept;
 use web::middlewares::response_map::mw_response_map;
 use web::routes::server_static::server_dir;
-use tower::ServiceBuilder;
 
 pub mod _dev_utils;
+mod manager;
 mod config;
 mod crypt;
 mod ctx;
@@ -31,20 +31,19 @@ async fn main() -> Result<()> {
         .expect("Erro to initialize tracing");
 
     // -- FOR DEV ONLY
-    _dev_utils::init_dev().await;
+    // _dev_utils::init_dev().await;
 
-    let mm = ModelManager::new().await?;
-    let oac = new_oa_client()?;
+    let tutoria_manager = TutorIAManager::new().await?;
 
-    let routes_alunos = routes::aluno::routes(mm.clone())
-        .route_layer(middleware::from_fn(mw_ctx_require));
-    let routes_usuario = routes::usuario::routes(mm.clone());
-    let routes_professor = routes::professor::router(mm.clone());
+    let routes_alunos =
+        routes::aluno::routes(tutoria_manager.clone()).route_layer(middleware::from_fn(mw_ctx_require));
+    let routes_usuario = routes::usuario::routes(tutoria_manager.clone());
+    let routes_professor = routes::professor::router(tutoria_manager.clone());
     let routes_materia =
-        routes::materia::router(mm.clone()).route_layer(middleware::from_fn(mw_ctx_require));
-    let routes_tutor =
-        routes::tutor::routes(mm.clone(), oac.clone()).route_layer(middleware::from_fn(mw_ctx_require));
-    let routes_authenticate = routes::auth::routes(mm.clone());
+        routes::materia::router(tutoria_manager.clone()).route_layer(middleware::from_fn(mw_ctx_require));
+    let routes_tutor = routes::tutor::routes(tutoria_manager.clone())
+        .route_layer(middleware::from_fn(mw_ctx_require));
+    let routes_authenticate = routes::auth::routes(tutoria_manager.clone());
     let routes_jwt = routes::jwt::routes().route_layer(middleware::from_fn(mw_ctx_require));
 
     let mw_cors_accept = mw_cors_accept().await;
@@ -61,7 +60,7 @@ async fn main() -> Result<()> {
             ServiceBuilder::new()
                 .layer(mw_cors_accept)
                 // .layer(CookieManagerLayer::new())
-                .layer(middleware::from_fn_with_state(mm.clone(), mw_ctx_resolve))
+                .layer(middleware::from_fn_with_state(tutoria_manager.clone(), mw_ctx_resolve))
                 .layer(middleware::map_response(mw_response_map)),
         )
         .fallback_service(server_dir());

@@ -1,17 +1,24 @@
-use crate::{manager, model};
+use crate::utils;
+
+use super::stores;
 use derive_more::From;
-use tutoria_agent::ais;
+use serde::Serialize;
+use serde_with::serde_as;
+use uuid::Uuid;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, From)]
+#[serde_as]
+#[derive(Debug, From, Serialize, Clone)]
 pub enum Error {
+    EntityNotFound { entity: &'static str, id: Uuid},
+    Stores(stores::Error),
+    ValidateFail(&'static str),
+    Utils(utils::error::Error),
     #[from(ignore)]
-    ConfigMissingEnv(&'static str),
+    OaError(String),
     #[from(ignore)]
-    ConfigWrongFormat(&'static str),
-    Model(model::Error),
-    Manager(manager::Error),
+    RedisConnectionError(String)
 }
 
 // region:    --- Error Boilerplate
@@ -21,6 +28,7 @@ impl core::fmt::Display for Error {
         write!(fmt, "{self:?}")
     }
 }
+
 
 impl std::error::Error for Error {}
 

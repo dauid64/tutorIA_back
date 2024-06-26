@@ -12,23 +12,21 @@ use tutoria_agent::{send_tutoria_message, TutorIAContext};
 use uuid::Uuid;
 
 use crate::ctx::Ctx;
+use crate::manager::TutorIAManager;
 use crate::model::aluno::AlunoBmc;
 use crate::model::chat::{ChatBmc, ChatForCreate};
 use crate::model::materia::MateriaBmc;
 use crate::model::mensagem::{MensagemBmc, MensagemForCreate};
 use crate::model::tutor::{TutorBmc, TutorForCreate};
-use crate::model::ModelManager;
 use crate::web::error::{Error, Result};
 
 #[derive(Clone)]
 struct TutorIAState {
-    mm: ModelManager,
+    tutoria_manager: TutorIAManager,
     oac: OaClient,
 }
 
-pub fn routes(mm: ModelManager, oac: OaClient) -> Router {
-    let tutoria_state = TutorIAState { mm, oac };
-
+pub fn routes(tutoria_manager: TutorIAManager) -> Router {
     Router::new()
         .route("/api/tutor", post(api_create_tutor_handler))
         .route("/api/tutor/:tutor_id", get(api_get_chat_handler))
@@ -36,16 +34,14 @@ pub fn routes(mm: ModelManager, oac: OaClient) -> Router {
             "/api/tutor/mensagem/:chat_id",
             post(api_create_mensagem_handler),
         )
-        .with_state(tutoria_state)
+        .with_state(tutoria_manager)
 }
 
 async fn api_create_tutor_handler(
-    State(tutoria_state): State<TutorIAState>,
+    State(tutoria_manager): State<TutorIAManager>,
     Json(payload): Json<TutorForCreate>,
 ) -> Result<Json<Value>> {
-    let mm = tutoria_state.mm;
-
-    let materia = MateriaBmc::find_by_id(&mm, payload.materia_id).await?;
+    let materia = MateriaBmc::find_by_id(&tutoria_manager, payload.materia_id).await?;
 
     let tutor_c = TutorForCreate {
         nome: payload.nome,
@@ -53,7 +49,7 @@ async fn api_create_tutor_handler(
     };
 
     TutorBmc::validate(&tutor_c).await?;
-    let tutor_id = TutorBmc::create(&mm, tutor_c).await?;
+    let tutor_id = TutorBmc::create(&tutoria_manager, tutor_c).await?;
 
     let body = Json(json!({
         "result": {
@@ -66,29 +62,27 @@ async fn api_create_tutor_handler(
 
 async fn api_get_chat_handler(
     ctx: Ctx,
-    State(tutoria_state): State<TutorIAState>,
+    State(tutoria_manager): State<TutorIAManager>,
     Path(params): Path<HashMap<String, String>>,
 ) -> Result<Json<Value>> {
-    let mm = tutoria_state.mm;
-
     let tutor_id_str = params.get("tutor_id").ok_or(Error::ParamsNotFound)?;
     let tutor_id =
         Uuid::parse_str(&tutor_id_str).map_err(|err| Error::InvalidUuid(err.to_string()))?;
-    let tutor = TutorBmc::find_by_id(&mm, tutor_id).await?;
+    let tutor = TutorBmc::find_by_id(&tutoria_manager, tutor_id).await?;
 
     let user_id = ctx.user_id();
 
-    let aluno_opt = AlunoBmc::find_by_user_Id(&mm, user_id).await?;
+    let aluno_opt = AlunoBmc::find_by_user_Id(&tutoria_manager, user_id).await?;
     if aluno_opt.is_none() {
         return Err(Error::Unauthorized("Nenhum aluno encontrado com esse id"));
     }
     let aluno = aluno_opt.unwrap();
 
-    let chat_opt = ChatBmc::find_by_aluno_and_tutor_id(&mm, aluno.id, tutor_id).await?;
+    let chat_opt = ChatBmc::find_by_aluno_and_tutor_id(&tutoria_manager, aluno.id, tutor_id).await?;
 
     if chat_opt.is_some() {
         let chat = chat_opt.unwrap();
-        let mut mensagens = MensagemBmc::find_by_chat_id(&mm, chat.id).await?;
+        let mut mensagens = MensagemBmc::find_by_chat_id(&tutoria_manager, chat.id).await?;
 
         let body = Json(json!({
             "result": {
@@ -109,8 +103,8 @@ async fn api_get_chat_handler(
         tutor_id: tutor.id,
     };
 
-    let chat_id = ChatBmc::create(&mm, chat_c).await?;
-    let chat = ChatBmc::find_by_id(&mm, chat_id).await?;
+    let chat_id = ChatBmc::create(&tutoria_manager, chat_c).await?;
+    let chat = ChatBmc::find_by_id(&tutoria_manager, chat_id).await?;
 
     let initial_message = TutorIA::get_initial_system_msg(ctx)
         .map_err(|err| Error::TutorIAAgentError(err.to_string()))?;
@@ -121,7 +115,7 @@ async fn api_get_chat_handler(
         chat_id,
     };
 
-    MensagemBmc::create(&mm, message_c).await?;
+    MensagemBmc::create(&tutoria_manager, message_c).await?;
 
     let body = Json(json!({
         "result": {
@@ -134,25 +128,24 @@ async fn api_get_chat_handler(
 }
 
 async fn api_create_mensagem_handler(
-    State(tutoria_state): State<TutorIAState>,
+    State(tutoria_manager): State<TutorIAManager>,
     Path(params): Path<HashMap<String, String>>,
     Json(payload): Json<MsgCreatePayload>,
 ) -> Result<Json<Value>> {
-    let mm = tutoria_state.mm;
-    let oac = tutoria_state.oac;
+    let oac = tutoria_manager.oac();
 
     let chat_id = Uuid::parse_str(params.get("chat_id").ok_or(Error::ParamsNotFound)?)
         .map_err(|err| Error::InvalidUuid(err.to_string()))?;
-    let chat = ChatBmc::find_by_id(&mm, chat_id).await?;
+    let chat = ChatBmc::find_by_id(&tutoria_manager, chat_id).await?;
 
     let mensagem_c = MensagemForCreate {
         conteudo: payload.conteudo,
         tipo: "user".to_string(),
         chat_id: chat.id,
     };
-    MensagemBmc::create(&mm, mensagem_c).await?;
+    MensagemBmc::create(&tutoria_manager, mensagem_c).await?;
 
-    let mensagens = MensagemBmc::find_by_chat_id(&mm, chat.id).await?;
+    let mensagens = MensagemBmc::find_by_chat_id(&tutoria_manager, chat.id).await?;
 
     let messages_formatted = mensagens
         .into_iter()
@@ -175,9 +168,9 @@ async fn api_create_mensagem_handler(
         tipo: "assistant".to_string(),
         chat_id: chat_id,
     };
-    MensagemBmc::create(&mm, mensagemtutoria_c).await?;
+    MensagemBmc::create(&tutoria_manager, mensagemtutoria_c).await?;
 
-    let mut mensagens = MensagemBmc::find_by_chat_id(&mm, chat.id).await?;
+    let mut mensagens = MensagemBmc::find_by_chat_id(&tutoria_manager, chat.id).await?;
 
     let body = Json(json!({
         "result": {

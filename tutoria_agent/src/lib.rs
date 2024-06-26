@@ -13,7 +13,7 @@ pub struct TutorIAContext {
     pub materia: String
 }
 
-pub async fn send_tutoria_message(oac: OaClient, tutoria: TutorIA) -> Result<TutorIA> {
+pub async fn send_tutoria_message(oac: &OaClient, tutoria: TutorIA) -> Result<TutorIA> {
     let tutoria = Message::send_message(oac, tutoria).await?;
     
     Ok(tutoria)
@@ -58,7 +58,7 @@ mod tests {
 
         let tutoria = TutorIA::new(messages);
 
-        let tutoria = send_tutoria_message(oac, tutoria).await?;
+        let tutoria = send_tutoria_message(&oac, tutoria).await?;
 
         println!("{:?}", tutoria.messages);
 

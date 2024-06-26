@@ -6,17 +6,17 @@ use tracing::debug;
 
 use crate::crypt;
 use crate::model::usuario::{UsuarioBmc, UsuarioForCreate};
-use crate::model::ModelManager;
+use crate::manager::TutorIAManager;
 use crate::web::error::Result;
 
-pub fn routes(mm: ModelManager) -> Router {
+pub fn routes(tutoria_manager: TutorIAManager) -> Router {
     Router::new()
         .route("/api/usuario", post(api_create_usuario_handler))
-        .with_state(mm)
+        .with_state(tutoria_manager)
 }
 
 async fn api_create_usuario_handler(
-    mm: State<ModelManager>,
+    tutoria_manager: State<TutorIAManager>,
     Json(payload): Json<UsuarioForCreate>
 ) -> Result<Json<Value>> {
     debug!(" {:<12} - api_create_usuario_handler", "HANDLER");
@@ -30,7 +30,7 @@ async fn api_create_usuario_handler(
         pwd: crypt_pwd
     };
 
-    let id = UsuarioBmc::create(&mm, usuario_for_create).await?;
+    let id = UsuarioBmc::create(&tutoria_manager, usuario_for_create).await?;
 
     let body = Json(json!({
         "result": {

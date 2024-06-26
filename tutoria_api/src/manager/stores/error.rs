@@ -1,10 +1,10 @@
 use serde::Serialize;
-
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone )]
 pub enum Error {
     FailToCreatePool(String),
+    FailToConnectRedis(String)
 }
 
 // region:    --- Error Boilerplate

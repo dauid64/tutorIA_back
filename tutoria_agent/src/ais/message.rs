@@ -13,7 +13,7 @@ pub struct Message {
 }
 
 impl Message {
-    pub async fn send_message(oac: OaClient, tutoria: TutorIA) -> Result<TutorIA> {
+    pub async fn send_message(oac: &OaClient, tutoria: TutorIA) -> Result<TutorIA> {
         let mut messages_formatted = Vec::new();
         let messages = tutoria.messages.clone().into_iter();
 

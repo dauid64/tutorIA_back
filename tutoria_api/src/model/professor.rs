@@ -1,11 +1,13 @@
+use crate::manager::TutorIAManager;
+
 use super::{
     base::{self, DbBmc},
-    Error, ModelManager, Result,
+    Error, Result,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlb::{Fields, HasFields};
-use sqlx::{postgres::PgRow, FromRow};
+use sqlb::Fields;
+use sqlx::FromRow;
 use uuid::Uuid;
 
 #[derive(FromRow, Serialize)]
@@ -45,12 +47,12 @@ impl ProfessorBmc {
         professor_c.validate()
     }
 
-    pub async fn create(mm: &ModelManager, professor_c: ProfessorForCreate) -> Result<Uuid> {
-        base::create::<Self, _>(mm, professor_c).await
+    pub async fn create(tutoria_manager: &TutorIAManager, professor_c: ProfessorForCreate) -> Result<Uuid> {
+        base::create::<Self, _>(tutoria_manager, professor_c).await
     }
 
-    pub async fn find_by_user_id(mm: &ModelManager, user_id: Uuid) -> Result<Option<Professor>> {
-        let db = mm.db();
+    pub async fn find_by_user_id(tutoria_manager: &TutorIAManager, user_id: Uuid) -> Result<Option<Professor>> {
+        let db = tutoria_manager.db();
 
         let professor = sqlx::query_as!(
             Professor,

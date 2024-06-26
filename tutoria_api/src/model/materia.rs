@@ -1,10 +1,10 @@
-use crate::model::{ Error, Result};
+use crate::{manager::TutorIAManager, model::{ Error, Result}};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
-use super::{aluno::AlunoWithUser, base::DbBmc, ModelManager};
+use super::{aluno::AlunoWithUser, base::DbBmc};
 
 #[derive(FromRow, Serialize)]
 pub struct Materia {
@@ -63,8 +63,8 @@ impl MateriaBmc {
         materia_c.validate()
     }
 
-    pub async fn create(mm: &ModelManager, materia_c: MateriaForCreate) -> Result<Uuid> {
-        let db = mm.db();
+    pub async fn create(tutoria_manager: &TutorIAManager, materia_c: MateriaForCreate) -> Result<Uuid> {
+        let db = tutoria_manager.db();
 
         let query = sqlx::query!(
             r#"
@@ -86,8 +86,8 @@ impl MateriaBmc {
         Ok(id)
     }
 
-    pub async fn add_aluno(mm: &ModelManager, aluno_id: Uuid, materia_id: Uuid) -> Result<()> {
-        let db = mm.db();
+    pub async fn add_aluno(tutoria_manager: &TutorIAManager, aluno_id: Uuid, materia_id: Uuid) -> Result<()> {
+        let db = tutoria_manager.db();
 
         sqlx::query(
             r#"
@@ -104,8 +104,8 @@ impl MateriaBmc {
         Ok(())
     }
 
-    pub async fn remove_aluno(mm: &ModelManager, aluno_id: Uuid, materia_id: Uuid) -> Result<()> {
-        let db = mm.db();
+    pub async fn remove_aluno(tutoria_manager: &TutorIAManager, aluno_id: Uuid, materia_id: Uuid) -> Result<()> {
+        let db = tutoria_manager.db();
 
         sqlx::query(
             r#"
@@ -123,10 +123,10 @@ impl MateriaBmc {
     }
 
     pub async fn find_alunos_registered(
-        mm: &ModelManager,
+        tutoria_manager: &TutorIAManager,
         materia_id: Uuid,
     ) -> Result<Vec<AlunoWithUser>> {
-        let db = mm.db();
+        let db = tutoria_manager.db();
 
         let alunos = sqlx::query_as!(
             AlunoWithUser,
@@ -150,10 +150,10 @@ impl MateriaBmc {
     }
 
     pub async fn find_alunos_not_registered(
-        mm: &ModelManager,
+        tutoria_manager: &TutorIAManager,
         materia_id: Uuid,
     ) -> Result<Vec<AlunoWithUser>> {
-        let db = mm.db();
+        let db = tutoria_manager.db();
 
         let alunos = sqlx::query_as!(
             AlunoWithUser,
@@ -178,10 +178,10 @@ impl MateriaBmc {
     }
 
     pub async fn find_by_professor_id(
-        mm: &ModelManager,
+        tutoria_manager: &TutorIAManager,
         professor_id: Uuid,
     ) -> Result<Vec<Materia>> {
-        let db = mm.db();
+        let db = tutoria_manager.db();
 
         let materias = sqlx::query_as!(
             Materia,
@@ -210,8 +210,8 @@ impl MateriaBmc {
         Ok(materias)
     }
 
-    pub async fn find_by_id(mm: &ModelManager, materia_id: Uuid) -> Result<Materia> {
-        let db = mm.db();
+    pub async fn find_by_id(tutoria_manager: &TutorIAManager, materia_id: Uuid) -> Result<Materia> {
+        let db = tutoria_manager.db();
 
         let materia = sqlx::query_as!(
             Materia,

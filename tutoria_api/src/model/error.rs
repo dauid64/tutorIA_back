@@ -1,6 +1,5 @@
 use crate::utils;
 
-use super::store;
 use derive_more::From;
 use serde::Serialize;
 use serde_with::serde_as;
@@ -12,11 +11,11 @@ pub type Result<T> = core::result::Result<T, Error>;
 #[derive(Debug, From, Serialize, Clone)]
 pub enum Error {
     EntityNotFound { entity: &'static str, id: Uuid},
-    Store(store::Error),
     #[from(ignore)]
     Sqlx(String),
     ValidateFail(&'static str),
     Utils(utils::error::Error),
+    OaError(String)
 }
 
 // region:    --- Error Boilerplate

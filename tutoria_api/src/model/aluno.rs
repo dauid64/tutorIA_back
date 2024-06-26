@@ -1,4 +1,4 @@
-use crate::model::Result;
+use crate::{manager::TutorIAManager, model::Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlb::Fields;
@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use super::{
     base::{self, DbBmc},
-    Error, ModelManager,
+    Error,
 };
 
 #[derive(FromRow, Serialize, Type)]
@@ -55,12 +55,14 @@ impl AlunoBmc {
         aluno_c.validate()
     }
 
-    pub async fn create(mm: &ModelManager, aluno_c: AlunoForCreate) -> Result<Uuid> {
-        base::create::<Self, _>(mm, aluno_c).await
+    pub async fn create(tutoria_manager: &TutorIAManager, aluno_c: AlunoForCreate) -> Result<Uuid> {
+        base::create::<Self, _>(tutoria_manager, aluno_c).await
     }
 
-    pub async fn search_with_join_user(mm: &ModelManager) -> Result<Vec<AlunoWithUser>> {
-        let db = mm.db();
+    pub async fn search_with_join_user(
+        tutoria_manager: &TutorIAManager,
+    ) -> Result<Vec<AlunoWithUser>> {
+        let db = tutoria_manager.db();
 
         let alunos = sqlx::query_as!(
             AlunoWithUser,
@@ -81,10 +83,10 @@ impl AlunoBmc {
     }
 
     pub async fn find_by_user_Id(
-        mm: &ModelManager,
+        tutoria_manager: &TutorIAManager,
         user_id: Uuid,
     ) -> Result<Option<AlunoWithUser>> {
-        let db = mm.db();
+        let db = tutoria_manager.db();
 
         let aluno = sqlx::query_as!(
             AlunoWithUser,

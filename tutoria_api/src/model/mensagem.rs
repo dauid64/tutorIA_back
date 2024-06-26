@@ -1,14 +1,11 @@
-use crate::model::{Error, Result};
+use crate::{manager::TutorIAManager, model::{Error, Result}};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlb::Fields;
 use sqlx::FromRow;
 use uuid::Uuid;
 
-use super::{
-    base::{self, DbBmc},
-    ModelManager,
-};
+use super::base::{self, DbBmc};
 
 #[derive(Deserialize, Fields)]
 pub struct MensagemForCreate {
@@ -31,12 +28,12 @@ impl DbBmc for MensagemBmc {
 }
 
 impl MensagemBmc {
-    pub async fn create(mm: &ModelManager, mensagem_c: MensagemForCreate) -> Result<Uuid> {
-        base::create::<Self, _>(mm, mensagem_c).await
+    pub async fn create(tutoria_manager: &TutorIAManager, mensagem_c: MensagemForCreate) -> Result<Uuid> {
+        base::create::<Self, _>(tutoria_manager, mensagem_c).await
     }
 
-    pub async fn find_by_chat_id(mm: &ModelManager, chat_id: Uuid) -> Result<Vec<Mensagem>> {
-        let db = mm.db();
+    pub async fn find_by_chat_id(tutoria_manager: &TutorIAManager, chat_id: Uuid) -> Result<Vec<Mensagem>> {
+        let db = tutoria_manager.db();
 
         let mensagens = sqlx::query_as!(
             Mensagem,

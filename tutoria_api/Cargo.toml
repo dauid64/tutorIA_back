@@ -34,6 +34,7 @@ base64-url = "3.0.0"
 # -- Data
 sqlx = { version = "0.7.4", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono"]}
 sqlb = "0.4.0"
+redis = { version = "0.25.4", features = ["tokio-comp", "aio", "connection-manager"] }
 
 # -- Date
 chrono = { version = "0.4.38", features = ["serde"]}
@@ -46,3 +47,4 @@ anyhow = "1.0.86"
 strum_macros = "0.26.2"
 time = "0.3.36"
 futures = "0.3.30"
+lopdf = { version = "0.32.0", features = ["pom", "pom_parser"] }

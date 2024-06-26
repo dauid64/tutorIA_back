@@ -2,9 +2,9 @@ use serde::Deserialize;
 use sqlb::Fields;
 use sqlx::prelude::FromRow;
 use uuid::Uuid;
-use crate::model::Result;
+use crate::{manager::TutorIAManager, model::Result};
 
-use super::{base::{self, DbBmc}, Error, ModelManager};
+use super::{base::{self, DbBmc}, Error};
 
 #[derive(Fields, Deserialize)]
 pub struct TutorForCreate {
@@ -46,12 +46,12 @@ impl TutorBmc {
         tutor_c.validate()
     }
 
-    pub async fn create(mm: &ModelManager, tutor_c: TutorForCreate) -> Result<Uuid> {
-        base::create::<Self, _>(mm, tutor_c).await
+    pub async fn create(tutoria_manager: &TutorIAManager, tutor_c: TutorForCreate) -> Result<Uuid> {
+        base::create::<Self, _>(tutoria_manager, tutor_c).await
     }
 
-    pub async fn find_by_id(mm: &ModelManager, id: Uuid) -> Result<Tutor> {
-        let tutor = base::find_by_id::<Self, Tutor>(mm, id).await?;
+    pub async fn find_by_id(tutoria_manager: &TutorIAManager, id: Uuid) -> Result<Tutor> {
+        let tutor = base::find_by_id::<Self, Tutor>(tutoria_manager, id).await?;
 
         if tutor.is_none() {
             return Err(Error::EntityNotFound { entity: "tutor", id: id })

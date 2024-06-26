@@ -3,3 +3,4 @@
 /postgres_data
 /docker_env/.env
 /static/materia/conteudos/*
+/redis_data/*

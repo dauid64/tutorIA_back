@@ -4,6 +4,7 @@ use derive_more::{ From, Deref, Display };
 
 pub mod error;
 pub mod message;
+pub mod embeddings;
 
 pub type OaClient = Client<OpenAIConfig>;
 

@@ -8,6 +8,7 @@ pub mod error;
 #[derive(Clone)]
 pub struct TutorIA {
     pub model: String,
+    pub model_embeddings: String,
     pub messages: Vec<Message>
 }
 
@@ -15,6 +16,7 @@ impl TutorIA {
     pub fn new(messages: Vec<Message>) -> TutorIA {
         TutorIA {
             model: config().openai_model.clone(),
+            model_embeddings: config().openai_model_embeddings.clone(),
             messages: messages
         }
     }

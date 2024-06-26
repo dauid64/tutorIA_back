@@ -1,21 +1,21 @@
+use super::Error;
+use crate::manager::TutorIAManager;
+use crate::model::Result;
 use sqlb::HasFields;
 use sqlx::postgres::PgRow;
 use sqlx::FromRow;
 use uuid::Uuid;
-use crate::model::Result;
-use super::ModelManager;
-use super::Error;
 
 pub trait DbBmc {
     const TABLE: &'static str;
 }
 
-pub async fn create<MC, E>(mm: &ModelManager, data: E) -> Result<Uuid> 
+pub async fn create<MC, E>(tutoria_manager: &TutorIAManager, data: E) -> Result<Uuid>
 where
     MC: DbBmc,
-    E: HasFields
+    E: HasFields,
 {
-    let db = mm.db();
+    let db = tutoria_manager.db();
 
     let fields = data.not_none_fields();
     let (id,) = sqlb::insert()
@@ -29,13 +29,13 @@ where
     Ok(id)
 }
 
-pub async fn find_by_id<MC, E>(mm: &ModelManager, id: Uuid) -> Result<Option<E>>
+pub async fn find_by_id<MC, E>(tutoria_manager: &TutorIAManager, id: Uuid) -> Result<Option<E>>
 where
-    MC: DbBmc ,
+    MC: DbBmc,
     E: for<'r> FromRow<'r, PgRow> + Unpin + Send,
     E: HasFields,
 {
-    let db = mm.db();
+    let db = tutoria_manager.db();
 
     let entity: Option<E> = sqlb::select()
         .table(MC::TABLE)
@@ -45,6 +45,5 @@ where
         .await
         .map_err(|err| Error::Sqlx(err.to_string()))?;
 
-    
-    Ok(entity)   
+    Ok(entity)
 }

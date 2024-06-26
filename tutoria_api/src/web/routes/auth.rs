@@ -5,18 +5,18 @@ use serde_json::{json, Value};
 use tracing::debug;
 
 use crate::crypt::{jwt, pwd};
+use crate::manager::TutorIAManager;
 use crate::model::usuario::{UsuarioBmc, UsuarioForLogin};
-use crate::model::ModelManager;
 use crate::web::error::{Error, Result};
 
-pub fn routes(mm: ModelManager) -> Router {
+pub fn routes(tutoria_manager: TutorIAManager) -> Router {
     Router::new()
         .route("/api/login", post(api_login_handler))
-        .with_state(mm)
+        .with_state(tutoria_manager)
 }
 
 async fn api_login_handler(
-    mm: State<ModelManager>,
+    tutoria_manager: State<TutorIAManager>,
     Json(payload): Json<LoginPayload>,
 ) -> Result<Json<Value>> {
     debug!(" {:<12} - api_login_handler", "HANDLER");
@@ -26,7 +26,7 @@ async fn api_login_handler(
         pwd: pwd_clear,
     }: LoginPayload = payload;
 
-    let user: UsuarioForLogin = UsuarioBmc::first_by_username(&mm, &username)
+    let user: UsuarioForLogin = UsuarioBmc::first_by_username(&tutoria_manager, &username)
         .await?
         .ok_or(Error::LoginFailUsernameNotFound)?;
     let user_id = user.id;

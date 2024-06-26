@@ -4,7 +4,7 @@ use tracing::debug;
 use derive_more::From;
 use uuid::Uuid;
 
-use crate::{crypt, model, web};
+use crate::{crypt, manager, model, utils, web};
 
 use super::middlewares;
 
@@ -14,7 +14,8 @@ pub type Result<T> = core::result::Result<T, Error>;
 #[serde(tag = "type", content = "data")]
 pub enum Error {
     Model(model::Error),
-    Utils(crypt::Error),
+    Crypt(crypt::Error),
+    Utils(utils::Error),
     CtxExt(middlewares::auth::CtxExtError),
     LoginFailUsernameNotFound,
     ParamsNotFound,
@@ -29,7 +30,14 @@ pub enum Error {
     #[from(ignore)]
     InvalidUuid(String),
     #[from(ignore)]
-    TutorIAAgentError(String)
+    TutorIAAgentError(String),
+    #[from(ignore)]
+    ReadToStringFileError(String),
+    #[from(ignore)]
+    FailToConvertForJson(String),
+    #[from(ignore)]
+    RedisError(String),
+    Manager(manager::Error)
 }
 
 impl core::fmt::Display for Error {
